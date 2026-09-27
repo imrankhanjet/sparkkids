@@ -5,626 +5,1587 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>SparkKids Learning Academy</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&family=Noto+Sans+Arabic:wght@700&family=Noto+Nastaliq+Urdu:wght@700&family=Noto+Sans+Devanagari:wght@700&family=Noto+Sans+Telugu:wght@700&family=Noto+Sans+Tamil:wght@700&family=Noto+Sans+Bengali:wght@700&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS for layout -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Global Fonts for all Indian & Arabic languages -->
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Noto+Sans:wght@700&family=Noto+Sans+Arabic:wght@700&family=Noto+Nastaliq+Urdu:wght@700&family=Noto+Sans+Devanagari:wght@700&family=Noto+Sans+Telugu:wght@700&family=Noto+Sans+Tamil:wght@700&family=Noto+Sans+Bengali:wght@700&display=swap" rel="stylesheet">
+  
+  <!-- Confetti Magic -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   
+  <!-- Twemoji: Upgrades text emojis to vibrant SVG pictures -->
+  <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
+
   <style>
-    body { 
-      text-align: center; 
-      font-family: 'Noto Sans', sans-serif; 
-      background-color: #f0f8ff; 
-      margin: 0; 
-      padding: 0; 
-      user-select: none;
-    }
-    
-    /* Top Navigation Bar */
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
-      background: white;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    .home-btn { font-size: 20px; background: #bae1ff; padding: 5px 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
-    .score-board { font-size: 24px; font-weight: bold; color: #ffb3ba; display: flex; align-items: center; gap: 10px; }
-    .reset-btn { font-size: 14px; background: #ffdfba; padding: 5px 10px; border-radius: 8px; border: none; cursor: pointer; }
-
-    /* Views */
-    .view { display: none; padding: 20px 10px; }
-    .active-view { display: block; }
-
-    /* Welcome Screen */
-    .menu-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      max-width: 800px;
-      margin: 30px auto;
-      padding: 10px;
-    }
-    .menu-card {
-      background: white;
-      border: 5px solid #bae1ff;
-      border-radius: 20px;
-      padding: 30px 20px;
-      font-size: 24px;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0px 8px 15px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-    .menu-card:active { transform: scale(0.95); }
-    .menu-card.pink { border-color: #ffb3ba; }
-    .menu-card.green { border-color: #baffc9; }
-
-    /* Game Layouts */
-    .toolbar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
-    .canvas-layout { display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; max-width: 900px; margin: 0 auto; }
-    
-    canvas { 
-      border: 6px solid #ffb3ba; 
-      background-color: transparent; 
-      border-radius: 20px; 
-      cursor: crosshair; 
+    body {
+      font-family: 'Fredoka One', 'Noto Sans', sans-serif;
       touch-action: none; 
-      box-shadow: 0px 5px 15px rgba(0,0,0,0.1); 
-      width: 100%; 
-      max-width: 600px; 
-      height: auto;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow: hidden; 
     }
     
-    .nav-btn { font-size: 30px; background: #bae1ff; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; box-shadow: 0px 4px 8px rgba(0,0,0,0.2); flex-shrink: 0; }
-    .nav-btn:active { transform: scale(0.95); }
-
-    select, .action-btn { font-size: 16px; padding: 8px 12px; border-radius: 8px; border: 2px solid #bae1ff; cursor: pointer; font-weight: bold; background: white; }
-    .color-btn { width: 35px; height: 35px; border-radius: 50%; display: inline-block; cursor: pointer; border: 3px solid white; box-shadow: 0px 4px 6px rgba(0,0,0,0.2); }
-
-    /* Footer for Tracing */
-    .footer-display {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 20px;
-      margin-top: 15px;
-      font-size: 50px;
-      font-weight: bold;
-      color: #555;
+    img.emoji {
+      height: 90px;
+      width: 90px;
+      filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.25));
     }
 
-    /* Count & Fill Grid */
-    .cf-layout { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 600px; margin: 0 auto;}
-    .cf-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
-    .cf-obj { font-size: 40px; opacity: 0.4; cursor: pointer; transition: 0.2s; user-select: none; }
-    .cf-obj.filled { opacity: 1; transform: scale(1.2); }
+    .match-emoji img.emoji {
+      height: 80px;
+      width: 80px;
+    }
 
-    /* Finger Math */
-    .math-q { font-size: 60px; font-weight: bold; margin: 40px 0; }
-    .math-ans-btn { font-size: 40px; padding: 10px 30px; background: white; border: 4px solid #baffc9; border-radius: 15px; cursor: pointer; margin: 10px; }
+    /* Fixed sizes for Count & Fill objects to ensure they are always visible */
+    img.cf-emoji {
+      height: 50px;
+      width: 50px;
+      filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.25));
+      pointer-events: none;
+    }
+
+    @keyframes pulse-btn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    .animate-pulse-btn { animation: pulse-btn 2s infinite; }
+
+    .color-btn.active {
+      transform: scale(1.2);
+      border: 4px solid #fff;
+    }
+
+    /* Connecting lines for the matching game */
+    #matchLinesCanvas { pointer-events: none; }
+
+    /* Welcome Screen Grid Cards */
+    .menu-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 4px solid white;
+      border-radius: 20px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    }
+    .menu-card.selected {
+      background: #baffc9;
+      border-color: #4ade80;
+      transform: scale(1.05);
+    }
+
+    .lang-banner {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 8px 15px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 600;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    .lang-badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    /* Math Game Styles */
+    .finger-hand { font-size: 2.5rem; margin: 0 4px; }
+    .math-level-btn { transition: all 0.2s; border: 2px solid transparent; }
+    .math-level-btn.active { background-color: #fde047; border-color: #eab308; transform: scale(1.05); }
+    .math-option { transition: all 0.2s; }
+    .math-option:hover { transform: scale(1.1); }
   </style>
 </head>
-<body>
+<body class="bg-gradient-to-b from-blue-100 to-purple-200 h-screen flex flex-col justify-between">
 
-  <!-- Top Navigation & Score -->
-  <div class="top-bar">
-    <button class="home-btn" onclick="showView('view-menu')">🏠 Home</button>
-    <div class="score-board">
-        <span id="scoreDisplay">⭐ 0</span>
-        <button class="reset-btn" onclick="resetPoints()">Reset</button>
+  <!-- ============================================== -->
+  <!-- WELCOME SCREEN MENU                            -->
+  <!-- ============================================== -->
+  <div id="startOverlay" class="fixed inset-0 z-50 bg-gradient-to-br from-blue-400 to-purple-500 flex flex-col items-center justify-center p-4 overflow-y-auto">
+    <h1 class="text-4xl md:text-6xl font-extrabold text-yellow-300 mb-2 drop-shadow-lg text-center tracking-wider">🌟 SparkKids Academy 🌟</h1>
+    
+    <!-- Welcome Language Selection -->
+    <div class="flex justify-center mb-6 w-full max-w-sm">
+      <select id="welcomeLanguage" onchange="syncLanguage(this.value)" class="bg-white text-indigo-900 border-4 border-indigo-300 rounded-full px-4 py-2 font-bold shadow-lg focus:outline-none text-lg cursor-pointer w-full text-center">
+        <option value="english">Language: English</option>
+        <option value="lowercase">Language: Lowercase (a-z)</option>
+        <option value="hindi">Language: Hindi</option>
+        <option value="telugu">Language: Telugu</option>
+        <option value="tamil">Language: Tamil</option>
+        <option value="bengali">Language: Bengali</option>
+        <option value="arabic">Language: Arabic</option>
+        <option value="urdu">Language: Urdu</option>
+      </select>
     </div>
+
+    <p class="text-lg md:text-2xl text-white font-bold mb-6 text-center">What do you want to learn today?</p>
+    
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full max-w-5xl mb-8">
+        <div class="menu-card selected" id="card-letters" onclick="selectMenu('trace', 'dynamic', 'letter', 'card-letters')">
+            <div class="text-5xl mb-2 text-center">🔤</div>
+            <h2 class="text-xl font-bold text-blue-900 text-center">Trace Letters</h2>
+        </div>
+        <div class="menu-card" id="card-words" onclick="selectMenu('trace', 'dynamic', 'word', 'card-words')">
+            <div class="text-5xl mb-2 text-center">🍎</div>
+            <h2 class="text-xl font-bold text-red-600 text-center">Trace Words</h2>
+        </div>
+        <div class="menu-card" id="card-random" onclick="selectMenu('trace', 'random_words', 'word', 'card-random')">
+            <div class="text-5xl mb-2 text-center">🏞️</div>
+            <h2 class="text-xl font-bold text-teal-600 text-center">Sight Words</h2>
+        </div>
+        <div class="menu-card" id="card-numbers" onclick="selectMenu('trace', 'numbers', 'letter', 'card-numbers')">
+            <div class="text-5xl mb-2 text-center">💯</div>
+            <h2 class="text-xl font-bold text-green-700 text-center">Numbers 1-100</h2>
+        </div>
+        <div class="menu-card" id="card-match" onclick="selectMenu('match', 'dynamic', 'letter', 'card-match')">
+            <div class="text-5xl mb-2 text-center">🧩</div>
+            <h2 class="text-xl font-bold text-purple-700 text-center">Word Match</h2>
+        </div>
+        <div class="menu-card" id="card-count-fill" onclick="selectMenu('count_fill', 'numbers', 'letter', 'card-count-fill')">
+            <div class="text-5xl mb-2 text-center">🖍️</div>
+            <h2 class="text-xl font-bold text-orange-600 text-center">Count & Fill</h2>
+        </div>
+        <div class="menu-card" id="card-math" onclick="selectMenu('math', 'numbers', 'letter', 'card-math')">
+            <div class="text-5xl mb-2 text-center">🖐️</div>
+            <h2 class="text-xl font-bold text-rose-600 text-center">Finger Math</h2>
+        </div>
+    </div>
+
+    <button onclick="startGame()" class="px-12 py-4 bg-pink-500 text-white text-3xl font-extrabold rounded-full shadow-2xl animate-pulse-btn border-4 border-white transition-all active:scale-90">
+      ▶ PLAY NOW!
+    </button>
   </div>
 
-  <!-- VIEW 1: Main Menu -->
-  <div id="view-menu" class="view active-view">
-    <h1>🌟 SparkKids Academy 🌟</h1>
-    <p>Choose a game to play!</p>
-    <div class="menu-grid">
-      <div class="menu-card" onclick="startTracing('english')">🔤 Trace Alphabets<br><span style="font-size:14px; font-weight:normal;">English, Hindi, Arabic & more!</span></div>
-      <div class="menu-card pink" onclick="startTracing('sight_words')">🍎 Trace Words<br><span style="font-size:14px; font-weight:normal;">Vocabulary & Shapes</span></div>
-      <div class="menu-card green" onclick="startTracing('numbers')">🔢 Trace Numbers<br><span style="font-size:14px; font-weight:normal;">Learn 1 to 100</span></div>
-      <div class="menu-card pink" onclick="startCountFill()">🎈 Count & Fill<br><span style="font-size:14px; font-weight:normal;">Trace & Match Quantities</span></div>
-      <div class="menu-card" onclick="startFingerMath()">✌️ Finger Math<br><span style="font-size:14px; font-weight:normal;">Add & Subtract</span></div>
-    </div>
-  </div>
+  <!-- ============================================== -->
+  <!-- APP HEADER & TOOLBARS                          -->
+  <!-- ============================================== -->
+  <header class="p-2 bg-white/80 backdrop-blur-sm shadow-md rounded-b-3xl z-10 flex-shrink-0">
+    <div class="max-w-4xl mx-auto flex flex-col gap-2">
+      <div class="flex justify-between items-center px-2">
+        <div class="flex items-center gap-1 md:gap-2">
+          <button onclick="goHome()" class="p-2 px-3 md:px-4 bg-indigo-100 text-indigo-700 rounded-xl border border-indigo-200 hover:bg-indigo-200 font-bold text-md shadow-sm transition-all">🏠 Home</button>
+          
+          <!-- Score Badge -->
+          <div class="flex items-center gap-1 bg-yellow-100 px-2 md:px-3 py-1.5 rounded-xl border-2 border-yellow-400 shadow-sm ml-1 md:ml-2">
+            <span class="text-sm md:text-xl font-bold text-yellow-600 transition-transform duration-300" id="scoreDisplay">⭐ 0</span>
+            <button onclick="showResetModal()" class="text-[10px] md:text-xs bg-red-400 hover:bg-red-500 text-white px-1.5 py-1 rounded-md transition-all active:scale-90 shadow-sm font-bold ml-1 md:ml-2">Reset</button>
+          </div>
+        </div>
+        
+        <!-- Tracing Mode Tabs (Letter vs Word) -->
+        <div class="flex gap-2 bg-blue-200/50 p-1.5 rounded-full" id="tracingModeContainer">
+          <button id="tabLetter" onclick="setTracingMode('letter')" class="px-4 py-2 rounded-full text-md md:text-lg font-bold transition-all bg-yellow-400 text-yellow-900 shadow-md">
+            🔤 Letter
+          </button>
+          <button id="tabWord" onclick="setTracingMode('word')" class="px-4 py-2 rounded-full text-md md:text-lg font-bold transition-all text-blue-800 hover:bg-blue-200/40">
+            🍎 Word
+          </button>
+        </div>
 
-  <!-- VIEW 2: Tracing Game -->
-  <div id="view-tracing" class="view">
-    <div class="toolbar">
-       <select id="languageSelect" onchange="changeTracingLang()">
+        <div class="flex gap-2">
+          <button id="btnMusic" onclick="toggleMusic()" class="p-2 px-4 bg-green-100 text-green-600 rounded-xl border border-green-200 hover:bg-green-200 font-bold text-md shadow-sm">🎵 On</button>
+          <button onclick="speakAloud()" class="p-2 px-4 bg-pink-100 text-pink-600 rounded-xl border border-pink-200 hover:bg-pink-200 font-bold text-md shadow-sm">🔊 Speak</button>
+        </div>
+      </div>
+
+      <!-- Language Selector -->
+      <div class="flex justify-center">
+        <select id="languageSelect" onchange="changeLanguage()" class="bg-indigo-100 text-indigo-900 border-2 border-indigo-300 rounded-xl px-4 py-2 font-bold shadow-sm focus:outline-none text-lg w-full max-w-sm">
           <option value="english">English (A-Z)</option>
           <option value="lowercase">Lower Case (a-z)</option>
-          <option value="sight_words">Sight Words</option>
-          <option value="hindi">Hindi</option>
-          <option value="telugu">Telugu</option>
-          <option value="tamil">Tamil</option>
-          <option value="bengali">Bengali</option>
-          <option value="arabic">Arabic</option>
-          <option value="urdu">Urdu</option>
+          <option value="hindi">Hindi (अ-ह)</option>
+          <option value="telugu">Telugu (అ-హ)</option>
+          <option value="tamil">Tamil (அ-ஔ)</option>
+          <option value="bengali">Bengali (অ-ঔ)</option>
+          <option value="arabic">Arabic (أ-ي)</option>
+          <option value="urdu">Urdu (ا-ی)</option>
+          <option value="random_words">Sight Words</option>
           <option value="numbers">Numbers (1-100)</option>
           <option value="shapes">Shapes</option>
-       </select>
-       <button class="action-btn" style="background: #ffd6a5;" onclick="speakAloud()">🔊 Speak</button>
-       <button class="action-btn" style="background: #ffb3ba;" onclick="clearTracing()">Erase</button>
+        </select>
+      </div>
     </div>
+  </header>
 
-    <div class="toolbar">
-       <button class="color-btn" style="background:red;" onclick="tracingColor='red'"></button>
-       <button class="color-btn" style="background:orange;" onclick="tracingColor='orange'"></button>
-       <button class="color-btn" style="background:yellow;" onclick="tracingColor='yellow'"></button>
-       <button class="color-btn" style="background:green;" onclick="tracingColor='green'"></button>
-       <button class="color-btn" style="background:blue;" onclick="tracingColor='blue'"></button>
-       <button class="color-btn" style="background:purple;" onclick="tracingColor='purple'"></button>
-       <button class="color-btn" style="background:black;" onclick="tracingColor='black'"></button>
-    </div>
-
-    <div class="canvas-layout">
-       <button class="nav-btn" onclick="prevTracing()">◀</button>
-       <canvas id="tracingCanvas" width="800" height="500"></canvas>
-       <button class="nav-btn" onclick="nextTracing()">▶</button>
-    </div>
+  <main class="flex-grow flex flex-col items-center justify-center p-2 relative h-full min-h-0">
     
-    <div id="tracingFooter" class="footer-display"></div>
-  </div>
+    <!-- ============================================== -->
+    <!-- MODE 1: TRACING GAME                           -->
+    <!-- ============================================== -->
+    <div id="modeTracing" class="w-full max-w-3xl flex flex-col items-center gap-2 h-full justify-around">
+      
+      <!-- Canvas and Arrows Container -->
+      <div class="flex items-center justify-center w-full gap-2 md:gap-6 mt-2 relative">
+        <button class="nav-btn bg-pink-400 hover:bg-pink-500 text-white font-bold rounded-full w-14 h-14 md:w-20 md:h-20 flex items-center justify-center text-3xl md:text-5xl shadow-lg border-4 border-white transition-all active:scale-90 z-10" onclick="goPrev()">◀</button>
+        
+        <div class="relative w-[320px] h-[320px] md:w-[500px] md:h-[350px] flex-shrink-0">
+          <canvas id="kidsCanvas" class="w-full h-full border-4 border-yellow-400 bg-white rounded-3xl shadow-2xl cursor-pointer" width="500" height="350"></canvas>
+          
+          <!-- Progress Indicator -->
+          <div class="absolute -top-4 -right-4 bg-green-500 text-white border-4 border-white font-extrabold rounded-full w-16 h-16 flex items-center justify-center text-lg shadow-lg">
+            <span id="txtProgress">0%</span>
+          </div>
+        </div>
 
-  <!-- VIEW 3: Count & Fill Game -->
-  <div id="view-cf" class="view">
-    <h2>Trace the number, then tap the shapes to match!</h2>
-    <div class="canvas-layout">
-       <button class="nav-btn" onclick="prevCF()">◀</button>
-       <div class="cf-layout">
-           <canvas id="cfCanvas" width="400" height="400"></canvas>
-           <div id="cfObjects" class="cf-grid"></div>
-       </div>
-       <button class="nav-btn" onclick="nextCF()">▶</button>
-    </div>
-  </div>
+        <button class="nav-btn bg-pink-400 hover:bg-pink-500 text-white font-bold rounded-full w-14 h-14 md:w-20 md:h-20 flex items-center justify-center text-3xl md:text-5xl shadow-lg border-4 border-white transition-all active:scale-90 z-10" onclick="goNext()">▶</button>
+      </div>
 
-  <!-- VIEW 4: Finger Math -->
-  <div id="view-math" class="view">
-    <h2>Solve the Finger Math!</h2>
-    <div class="toolbar">
-        <button class="action-btn" onclick="generateMath(1)">Level 1 (Add to 5)</button>
-        <button class="action-btn" onclick="generateMath(2)">Level 2 (Add to 10)</button>
-        <button class="action-btn" onclick="generateMath(3)">Level 3 (Subtract)</button>
+      <!-- Color Palette -->
+      <div class="flex justify-center gap-2 md:gap-4 flex-wrap bg-white/70 px-6 py-2 rounded-full border border-blue-200/50 shadow-md">
+        <button class="color-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md transition-all bg-red-500 active ring-red-500" onclick="changeColor('red', this)"></button>
+        <button class="color-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md transition-all bg-orange-400" onclick="changeColor('orange', this)"></button>
+        <button class="color-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md transition-all bg-yellow-300" onclick="changeColor('yellow', this)"></button>
+        <button class="color-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md transition-all bg-green-500" onclick="changeColor('green', this)"></button>
+        <button class="color-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md transition-all bg-blue-500" onclick="changeColor('blue', this)"></button>
+        <button class="color-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md transition-all bg-purple-500" onclick="changeColor('purple', this)"></button>
+        <button class="color-btn w-10 h-10 md:w-12 md:h-12 rounded-full border-2 border-white shadow-md transition-all bg-neutral-900" onclick="changeColor('black', this)"></button>
+      </div>
+
+      <!-- Footer for Picture & Word -->
+      <div id="tracingFooter" class="bg-white/90 border-4 border-yellow-400 rounded-3xl px-8 py-2 shadow-xl flex items-center justify-between w-full max-w-lg h-[130px]">
+         <div id="footerPic" class="w-1/3 flex justify-center items-center"></div>
+         <div id="footerWord" class="w-2/3 flex justify-center items-center text-3xl md:text-5xl font-extrabold text-indigo-900 text-center"></div>
+      </div>
     </div>
-    <div id="mathQuestion" class="math-q"></div>
-    <div id="mathAnswers" class="toolbar"></div>
+
+    <!-- ============================================== -->
+    <!-- MODE 2: MATCHING GAME                          -->
+    <!-- ============================================== -->
+    <div id="modeMatching" class="w-full max-w-3xl hidden flex flex-col items-center h-full justify-center relative">
+      <h2 class="text-3xl font-extrabold text-blue-800 tracking-wide bg-white/80 px-8 py-2 rounded-full shadow-md mb-4 border-4 border-white z-20">
+        🤝 Match the Pictures!
+      </h2>
+      <div id="matchBoard" class="relative w-[340px] md:w-[700px] h-[450px] md:h-[500px] bg-white/60 border-4 border-white rounded-3xl shadow-xl flex justify-between p-4 touch-none">
+        <canvas id="matchLinesCanvas" class="absolute top-0 left-0 w-full h-full z-10"></canvas>
+        <div id="matchLeftCol" class="flex flex-col justify-around items-center h-full z-20 w-1/3"></div>
+        <div id="matchRightCol" class="flex flex-col justify-around items-center h-full z-20 w-1/3"></div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODE 3: MATH GAME                              -->
+    <!-- ============================================== -->
+    <div id="modeMath" class="w-full max-w-3xl hidden flex flex-col items-center h-full justify-start pt-4 relative overflow-y-auto">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-rose-600 tracking-wide bg-white/80 px-6 md:px-8 py-2 rounded-full shadow-md mb-4 border-4 border-white z-20 text-center">
+        🖐️ Finger Math
+      </h2>
+      
+      <!-- Levels -->
+      <div class="flex gap-2 mb-4 bg-white/60 p-2 rounded-2xl shadow-sm flex-wrap justify-center">
+        <button id="lvl1" onclick="setMathLevel(1)" class="math-level-btn active px-3 md:px-4 py-2 bg-white rounded-xl font-bold text-rose-600 shadow-sm text-sm md:text-base">Level 1 (Add 1-5)</button>
+        <button id="lvl2" onclick="setMathLevel(2)" class="math-level-btn px-3 md:px-4 py-2 bg-white rounded-xl font-bold text-orange-600 shadow-sm text-sm md:text-base">Level 2 (Add 1-10)</button>
+        <button id="lvl3" onclick="setMathLevel(3)" class="math-level-btn px-3 md:px-4 py-2 bg-white rounded-xl font-bold text-purple-600 shadow-sm text-sm md:text-base">Level 3 (Subtract)</button>
+      </div>
+
+      <!-- Equation Display -->
+      <div class="flex flex-col items-center bg-white/90 border-4 border-rose-300 rounded-3xl p-4 md:p-6 w-full max-w-lg shadow-xl mb-6">
+        <div id="mathVisuals" class="flex justify-center items-center gap-2 md:gap-4 mb-4 h-16 md:h-20 flex-wrap">
+           <!-- Hands injected here -->
+        </div>
+        <div id="mathEquation" class="text-4xl md:text-5xl font-extrabold text-gray-800 tracking-widest">
+           2 + 3 = ?
+        </div>
+      </div>
+
+      <!-- Multiple Choice Options -->
+      <div id="mathOptions" class="flex gap-4 justify-center w-full pb-4">
+         <!-- Options injected here -->
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- MODE 4: COUNT & FILL GAME                      -->
+    <!-- ============================================== -->
+    <div id="modeCountFill" class="w-full max-w-4xl hidden flex flex-col items-center h-full justify-start pt-2 relative overflow-y-auto px-2 pb-6">
+      <h2 class="text-2xl md:text-3xl font-extrabold text-orange-600 tracking-wide bg-white/80 px-6 py-2 rounded-full shadow-md mb-2 border-4 border-white z-20 text-center flex-shrink-0">
+        🖍️ Trace & Fill Objects!
+      </h2>
+      
+      <div class="flex items-center justify-center w-full gap-2 md:gap-4 mt-2">
+        <button class="nav-btn bg-pink-400 hover:bg-pink-500 text-white font-bold rounded-full w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-2xl md:text-3xl shadow-lg border-4 border-white transition-all active:scale-90 z-10 flex-shrink-0" onclick="initCountFill()">◀</button>
+        
+        <div class="flex flex-col md:flex-row items-center gap-4 w-full bg-white/60 p-4 rounded-3xl shadow-lg border-4 border-white flex-1">
+            <!-- Tracing Side -->
+            <div class="flex flex-col items-center relative flex-shrink-0">
+               <div class="text-lg font-bold text-gray-600 mb-2">1. Trace the Number</div>
+               <div class="relative">
+                   <canvas id="countFillCanvas" width="280" height="280" class="border-4 border-yellow-400 bg-white rounded-3xl shadow-md cursor-pointer touch-none"></canvas>
+                   <div class="absolute -top-3 -right-3 bg-green-500 text-white border-2 border-white font-extrabold rounded-full w-12 h-12 flex items-center justify-center text-sm shadow-lg">
+                      <span id="cfProgress">0%</span>
+                   </div>
+               </div>
+            </div>
+            
+            <!-- Filling Side -->
+            <div class="flex flex-col items-center flex-1 h-full w-full mt-4 md:mt-0">
+               <div class="text-xl md:text-2xl font-bold text-gray-700 mb-2 text-center">
+                   2. Fill exactly <span id="cfTargetNum" class="text-blue-600 font-extrabold text-3xl mx-1">5</span> objects!
+               </div>
+               <!-- Grid for objects -->
+               <div id="cfObjectsGrid" class="flex flex-wrap justify-center gap-3 w-full max-w-[350px] bg-white/50 p-4 rounded-2xl border-2 border-dashed border-gray-300 min-h-[150px]">
+                  <!-- Objects injected here -->
+               </div>
+            </div>
+        </div>
+
+        <button class="nav-btn bg-pink-400 hover:bg-pink-500 text-white font-bold rounded-full w-12 h-12 md:w-16 md:h-16 flex items-center justify-center text-2xl md:text-3xl shadow-lg border-4 border-white transition-all active:scale-90 z-10 flex-shrink-0" onclick="initCountFill()">▶</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Score Reset Custom Modal -->
+  <div id="resetScoreModal" class="fixed inset-0 z-[100] bg-black/60 hidden items-center justify-center p-4">
+      <div class="bg-white p-6 md:p-8 rounded-3xl text-center max-w-sm mx-auto border-8 border-pink-400 shadow-2xl">
+          <h3 class="text-3xl font-extrabold mb-4 text-pink-500">Reset Points?</h3>
+          <p class="mb-6 text-gray-600 font-bold text-lg">Are you sure you want to erase all your hard-earned stars?</p>
+          <div class="flex justify-center gap-4">
+              <button onclick="confirmResetScore()" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-2xl font-bold text-xl transition-transform active:scale-90 shadow-md">Yes</button>
+              <button onclick="closeResetModal()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-3 rounded-2xl font-bold text-xl transition-transform active:scale-90 shadow-md">No</button>
+          </div>
+      </div>
   </div>
 
   <script>
-    // --- GLOBAL DATA & POINTS ---
-    let points = parseInt(localStorage.getItem("sparkKidsPoints")) || 0;
-    document.getElementById('scoreDisplay').innerText = "⭐ " + points;
-
-    function addPoints(amt) {
-        points += amt;
-        localStorage.setItem("sparkKidsPoints", points);
-        document.getElementById('scoreDisplay').innerText = "⭐ " + points;
-        playSound('win');
-    }
-
-    function resetPoints() {
-        if(confirm("Are you sure you want to reset your stars?")) {
-            points = 0;
-            localStorage.setItem("sparkKidsPoints", points);
-            document.getElementById('scoreDisplay').innerText = "⭐ 0";
-        }
-    }
-
-    function showView(viewId) {
-        document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
-        document.getElementById(viewId).classList.add('active-view');
-        playSound('pop');
-    }
-
-    // --- SOUND EFFECTS ---
-    function playSound(type) {
-        try {
-            const AudioContext = window.AudioContext || window.webkitAudioContext;
-            const audioCtx = new AudioContext();
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            osc.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            
-            if(type === 'win') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
-                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); 
-                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.2); 
-                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
-            } else if (type === 'pop') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
-                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-            }
-        } catch(e) {}
-    }
-
-    // --- MULTILINGUAL DICTIONARY ---
+    // --- MASSIVE DICTIONARY (Numbers 1-30 & Full Vocabularies) ---
     const libraries = {
-        english: [
-            { l: 'A', w: 'Apple', e: '🍎' }, { l: 'B', w: 'Ball', e: '⚽' }, { l: 'C', w: 'Cat', e: '🐱' },
-            { l: 'D', w: 'Dog', e: '🐶' }, { l: 'E', w: 'Elephant', e: '🐘' }, { l: 'F', w: 'Fish', e: '🐟' },
-            { l: 'G', w: 'Grapes', e: '🍇' }, { l: 'H', w: 'Hat', e: '🎩' }, { l: 'I', w: 'Ice Cream', e: '🍦' },
-            { l: 'J', w: 'Juice', e: '🧃' }, { l: 'K', w: 'Kite', e: '🪁' }, { l: 'L', w: 'Lion', e: '🦁' },
-            { l: 'M', w: 'Monkey', e: '🐒' }, { l: 'N', w: 'Nest', e: '🪺' }, { l: 'O', w: 'Orange', e: '🍊' },
-            { l: 'P', w: 'Pig', e: '🐷' }, { l: 'Q', w: 'Queen', e: '👑' }, { l: 'R', w: 'Rabbit', e: '🐰' },
-            { l: 'S', w: 'Sun', e: '☀️' }, { l: 'T', w: 'Tree', e: '🌳' }, { l: 'U', w: 'Umbrella', e: '☂️' },
-            { l: 'V', w: 'Van', e: '🚐' }, { l: 'W', w: 'Watermelon', e: '🍉' }, { l: 'X', w: 'Xylophone', e: '🎹' },
-            { l: 'Y', w: 'Yak', e: '🐂' }, { l: 'Z', w: 'Zebra', e: '🦓' }
-        ],
-        lowercase: [
-            { l: 'a', w: 'Apple', e: '🍎' }, { l: 'b', w: 'Ball', e: '⚽' }, { l: 'c', w: 'Cat', e: '🐱' },
-            { l: 'd', w: 'Dog', e: '🐶' }, { l: 'e', w: 'Elephant', e: '🐘' }, { l: 'f', w: 'Fish', e: '🐟' }
-        ],
-        hindi: [
-            { l: 'अ', w: 'अनार', e: '🍎' }, { l: 'आ', w: 'आम', e: '🥭' }, { l: 'इ', w: 'इंजन', e: '🚂' },
-            { l: 'ई', w: 'ईख', e: '🎋' }, { l: 'उ', w: 'उल्लू', e: '🦉' }, { l: 'ऊ', w: 'ऊन', e: '🧶' }
-        ],
-        telugu: [
-            { l: 'అ', w: 'అరటి', e: '🍌' }, { l: 'ఆ', w: 'ఆవు', e: '🐄' }, { l: 'ఇ', w: 'ఇల్లు', e: '🏠' },
-            { l: 'ఈ', w: 'ఈక', e: '🪶' }, { l: 'ఉ', w: 'ఉడుత', e: '🐿️' }, { l: 'ఊ', w: 'ఊయల', e: '🛝' }
-        ],
-        tamil: [
-            { l: 'அ', w: 'அம்மா', e: '👩' }, { l: 'ஆ', w: 'ஆடு', e: '🐐' }, { l: 'இ', w: 'இலை', e: '🍃' },
-            { l: 'ஈ', w: 'ஈ', e: '🪰' }, { l: 'உ', w: 'உப்பு', e: '🧂' }, { l: 'ஊ', w: 'ஊஞ்சல்', e: '🛝' }
-        ],
-        bengali: [
-            { l: 'অ', w: 'অজগর', e: '🐍' }, { l: 'আ', w: 'আম', e: '🥭' }, { l: 'ই', w: 'ইঁদুর', e: '🐁' },
-            { l: 'ঈ', w: 'ঈগল', e: '🦅' }, { l: 'উ', w: 'উট', e: '🐪' }, { l: 'ঊ', w: 'ঊষা', e: '🌅' }
-        ],
-        arabic: [
-            { l: 'أ', w: 'أسد', e: '🦁' }, { l: 'ب', w: 'بطة', e: '🦆' }, { l: 'ت', w: 'تفاحة', e: '🍎' },
-            { l: 'ث', w: 'ثعلب', e: '🦊' }, { l: 'ج', w: 'جمل', e: '🐪' }, { l: 'ح', w: 'حصان', e: '🐎' }
-        ],
-        urdu: [
-            { l: 'ا', w: 'انار', e: '🍎' }, { l: 'ب', w: 'بلی', e: '🐱' }, { l: 'پ', w: 'پتنگ', e: '🪁' },
-            { l: 'ت', w: 'تتلی', e: '🦋' }, { l: 'ٹ', w: 'ٹماٹر', e: '🍅' }, { l: 'ث', w: 'ثمر', e: '🍇' }
-        ],
-        sight_words: [
-            { l: 'River', w: 'River', e: '🏞️' }, { l: 'Stars', w: 'Stars', e: '✨' },
-            { l: 'Ears', w: 'Ears', e: '👂' }, { l: 'Lips', w: 'Lips', e: '👄' }
-        ],
-        shapes: [
-            { l: '●', w: 'Circle', e: '🔴' }, { l: '■', w: 'Square', e: '🟩' },
-            { l: '▲', w: 'Triangle', e: '🔺' }, { l: '★', w: 'Star', e: '⭐' }, { l: '❤', w: 'Heart', e: '💖' }
-        ],
-        numbers: []
+      english: [
+        { l: 'A', w: 'Apple', e: '🍎' }, { l: 'B', w: 'Ball', e: '⚽' }, { l: 'C', w: 'Cat', e: '🐱' },
+        { l: 'D', w: 'Dog', e: '🐶' }, { l: 'E', w: 'Elephant', e: '🐘' }, { l: 'F', w: 'Fish', e: '🐟' },
+        { l: 'G', w: 'Grapes', e: '🍇' }, { l: 'H', w: 'Hat', e: '🎩' }, { l: 'I', w: 'Ice Cream', e: '🍦' },
+        { l: 'J', w: 'Juice', e: '🧃' }, { l: 'K', w: 'Kite', e: '🪁' }, { l: 'L', w: 'Lion', e: '🦁' },
+        { l: 'M', w: 'Monkey', e: '🐒' }, { l: 'N', w: 'Nest', e: '🪺' }, { l: 'O', w: 'Orange', e: '🍊' },
+        { l: 'P', w: 'Pig', e: '🐷' }, { l: 'Q', w: 'Queen', e: '👑' }, { l: 'R', w: 'Rabbit', e: '🐰' },
+        { l: 'S', w: 'Sun', e: '☀️' }, { l: 'T', w: 'Tree', e: '🌳' }, { l: 'U', w: 'Umbrella', e: '☂️' },
+        { l: 'V', w: 'Van', e: '🚐' }, { l: 'W', w: 'Watermelon', e: '🍉' }, { l: 'X', w: 'Xylophone', e: '🎹' },
+        { l: 'Y', w: 'Yak', e: '🐂' }, { l: 'Z', w: 'Zebra', e: '🦓' }
+      ],
+      lowercase: [
+        { l: 'a', w: 'Apple', e: '🍎' }, { l: 'b', w: 'Ball', e: '⚽' }, { l: 'c', w: 'Cat', e: '🐱' },
+        { l: 'd', w: 'Dog', e: '🐶' }, { l: 'e', w: 'Elephant', e: '🐘' }, { l: 'f', w: 'Fish', e: '🐟' },
+        { l: 'g', w: 'Grapes', e: '🍇' }, { l: 'h', w: 'Hat', e: '🎩' }, { l: 'i', w: 'Ice Cream', e: '🍦' },
+        { l: 'j', w: 'Juice', e: '🧃' }, { l: 'k', w: 'Kite', e: '🪁' }, { l: 'l', w: 'Lion', e: '🦁' },
+        { l: 'm', w: 'Monkey', e: '🐒' }, { l: 'n', w: 'Nest', e: '🪺' }, { l: 'o', w: 'Orange', e: '🍊' },
+        { l: 'p', w: 'Pig', e: '🐷' }, { l: 'q', w: 'Queen', e: '👑' }, { l: 'r', w: 'Rabbit', e: '🐰' },
+        { l: 's', w: 'Sun', e: '☀️' }, { l: 't', w: 'Tree', e: '🌳' }, { l: 'u', w: 'Umbrella', e: '☂️' },
+        { l: 'v', w: 'Van', e: '🚐' }, { l: 'w', w: 'Watermelon', e: '🍉' }, { l: 'x', w: 'Xylophone', e: '🎹' },
+        { l: 'y', w: 'Yak', e: '🐂' }, { l: 'z', w: 'Zebra', e: '🦓' }
+      ],
+      hindi: [
+        { l: 'अ', w: 'अनार', e: '🍎' }, { l: 'आ', w: 'आम', e: '🥭' }, { l: 'इ', w: 'इंजन', e: '🚂' },
+        { l: 'ई', w: 'ईख', e: '🎋' }, { l: 'उ', w: 'उल्लू', e: '🦉' }, { l: 'ऊ', w: 'ऊन', e: '🧶' },
+        { l: 'ऋ', w: 'ऋषि', e: '🧘' }, { l: 'ए', w: 'एक', e: '1️⃣' }, { l: 'ऐ', w: 'ऐनक', e: '👓' },
+        { l: 'ओ', w: 'ओखली', e: '🥣' }, { l: 'औ', w: 'औरत', e: '👩' },
+        { l: 'क', w: 'कमल', e: '🪷' }, { l: 'خ', w: 'खरगोश', e: '🐰' }, { l: 'ग', w: 'गमला', e: '🪴' }
+      ],
+      telugu: [
+        { l: 'అ', w: 'అరటి', e: '🍌' }, { l: 'ఆ', w: 'ఆవు', e: '🐄' }, { l: 'ఇ', w: 'ఇల్లు', e: '🏠' },
+        { l: 'ఈ', w: 'ఈక', e: '🪶' }, { l: 'ఉ', w: 'ఉడుత', e: '🐿️' }, { l: 'ఊ', w: 'ఊయల', e: '🛝' },
+        { l: 'ఋ', w: 'ఋషి', e: '🧘' }, { l: 'ఎ', w: 'ఎలుక', e: '🐁' }, { l: 'ఏ', w: 'ఏనుగు', e: '🐘' },
+        { l: 'ఐ', w: 'ఐదు', e: '5️⃣' }, { l: 'ఒ', w: 'ఒంటె', e: '🐪' }, { l: 'ఓ', w: 'ఓడ', e: '🚢' },
+        { l: 'ఔ', w: 'ఔషధం', e: '💊' }, { l: 'క', w: 'కన్ను', e: '👁️' }
+      ],
+      tamil: [
+        { l: 'அ', w: 'அம்மா', e: '👩' }, { l: 'ஆ', w: 'ஆடு', e: '🐐' }, { l: 'இ', w: 'இலை', e: '🍃' },
+        { l: 'ஈ', w: 'ஈ', e: '🪰' }, { l: 'உ', w: 'உப்பு', e: '🧂' }, { l: 'ஊ', w: 'ஊஞ்சல்', e: '🛝' },
+        { l: 'எ', w: 'எலி', e: '🐁' }, { l: 'ஏ', w: 'ஏணி', e: '🪜' }, { l: 'ஐ', w: 'ஐந்து', e: '5️⃣' },
+        { l: 'ஒ', w: 'ஒட்டகம்', e: '🐪' }, { l: 'ஓ', w: 'ஓடம்', e: '⛵' }, { l: 'ஔ', w: 'ஔவையார்', e: '👵' }
+      ],
+      bengali: [
+        { l: 'অ', w: 'অজগর', e: '🐍' }, { l: 'আ', w: 'আম', e: '🥭' }, { l: 'ই', w: 'ইঁদুর', e: '🐁' },
+        { l: 'ঈ', w: 'ঈগল', e: '🦅' }, { l: 'উ', w: 'উট', e: '🐪' }, { l: 'ঊ', w: 'ঊষা', e: '🌅' },
+        { l: 'ঋ', w: 'ঋষি', e: '🧘' }, { l: 'এ', w: 'একতারা', e: '🪕' }, { l: 'ঐ', w: 'ঐরাবত', e: '🐘' },
+        { l: 'ও', w: 'ওজন', e: '⚖️' }, { l: 'ঔ', w: 'ঔষধ', e: '💊' }
+      ],
+      arabic: [
+        { l: 'أ', w: 'أسد', e: '🦁' }, { l: 'ب', w: 'بطة', e: '🦆' }, { l: 'ت', w: 'تفاحة', e: '🍎' },
+        { l: 'ث', w: 'ثعلب', e: '🦊' }, { l: 'ج', w: 'جمل', e: '🐪' }, { l: 'ح', w: 'حصان', e: '🐎' }
+      ],
+      urdu: [
+        { l: 'ا', w: 'انار', e: '🍎' }, { l: 'ب', w: 'بلی', e: '🐱' }, { l: 'پ', w: 'پتنگ', e: '🪁' },
+        { l: 'ت', w: 'تتلی', e: '🦋' }, { l: 'ٹ', w: 'ٹماٹر', e: '🍅' }, { l: 'ث', w: 'ثمر', e: '🍇' }
+      ],
+      random_words: [
+        { l: 'River', w: 'River', e: '🏞️' }, { l: 'Stars', w: 'Stars', e: '✨' },
+        { l: 'Ears', w: 'Ears', e: '👂' }, { l: 'Lips', w: 'Lips', e: '👄' },
+        { l: 'House', w: 'House', e: '🏠' }, { l: 'Tree', w: 'Tree', e: '🌳' },
+        { l: 'Sun', w: 'Sun', e: '☀️' }, { l: 'Moon', w: 'Moon', e: '🌙' },
+        { l: 'Cloud', w: 'Cloud', e: '☁️' }, { l: 'Fire', w: 'Fire', e: '🔥' },
+        { l: 'Bird', w: 'Bird', e: '🐦' }, { l: 'Fish', w: 'Fish', e: '🐟' }
+      ],
+      numbers: [], // Will be dynamically generated 1 to 100 below
+      shapes: [
+        { l: '●', w: 'Circle', e: '🔴' }, { l: '■', w: 'Square', e: '🟩' },
+        { l: '▲', w: 'Triangle', e: '🔺' }, { l: '★', w: 'Star', e: '⭐' },
+        { l: '❤', w: 'Heart', e: '💖' }, { l: '♦', w: 'Diamond', e: '♦️' }
+      ]
     };
 
-    // Auto-Generate 1 to 100
+    const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+    const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    function getNumberWord(n) {
+        if (n < 20) return ones[n];
+        if (n < 100) return (tens[Math.floor(n/10)] + ' ' + ones[n%10]).trim();
+        if (n === 100) return 'One Hundred';
+        return n.toString();
+    }
+    const emojiSet = ['🍎','🎈','⭐','🚗','🌻','🐱','🍃','❤️','🍬','🍓'];
     for(let i=1; i<=100; i++) {
-        libraries.numbers.push({ l: i.toString(), w: i.toString(), e: '🍎' });
+        libraries.numbers.push({ 
+            l: i.toString(), 
+            w: getNumberWord(i), 
+            eBase: emojiSet[(i-1) % emojiSet.length], 
+            eCount: i 
+        });
     }
 
-    // NATIVE TTS ENGINE
-    function speakAloud() {
-        let cat = document.getElementById('languageSelect').value;
-        let item = libraries[cat][tIndex];
-        let textToSpeak = item.w ? `${item.l}, ${item.w}` : item.l;
+    // --- GAME STATE ---
+    let gameMode = 'trace'; // 'trace' or 'match'
+    let tracingMode = 'letter'; // 'letter' or 'word'
+    let currentCategory = 'english';
+    let currentIndex = 0;
+    
+    // NEW: Global Score Tracking
+    let globalScore = 0;
+    
+    // Audio Context for Upbeat Synths
+    let audioCtx = null;
+    let isMusicPlaying = false;
+    let musicInterval = null;
+    let speechInterval = null;
+    let isCelebrating = false;
 
-        window.speechSynthesis.cancel(); 
-        let utterance = new SpeechSynthesisUtterance(textToSpeak);
+    // Tracing Variables
+    const canvas = document.getElementById('kidsCanvas');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let currentColor = 'red';
+    let paths = []; 
+    let currentPath = [];
+    
+    // Pixel Scanner for Auto-Advance
+    let totalTargetPixels = 0;
+
+    // Math Game Variables
+    let mathLevel = 1;
+    let mathAnswer = 0;
+    let mathOptions = [];
+
+    // Matching Game Variables
+    const mCanvas = document.getElementById('matchLinesCanvas');
+    const mCtx = mCanvas.getContext('2d');
+    let leftNodes = [];
+    let rightNodes = [];
+    let dragStartNode = null;
+    let currentDragPos = null;
+    let isDraggingMatch = false;
+
+    // --- INITIALIZATION ---
+    function syncLanguage(val) {
+        document.getElementById('languageSelect').value = val;
+    }
+
+    function selectMenu(mode, category, traceType, cardId) {
+        document.querySelectorAll('.menu-card').forEach(c => c.classList.remove('selected', 'border-green-400', 'bg-green-100'));
+        document.getElementById(cardId).classList.add('selected');
         
-        let targetLang = 'en-US';
-        if(cat === 'hindi') targetLang = 'hi-IN';
-        else if(cat === 'telugu') targetLang = 'te-IN';
-        else if(cat === 'tamil') targetLang = 'ta-IN';
-        else if(cat === 'bengali') targetLang = 'bn-IN';
-        else if(cat === 'arabic') targetLang = 'ar-SA';
-        else if(cat === 'urdu') targetLang = 'ur-PK'; 
-        
-        utterance.lang = targetLang;
-        utterance.rate = 0.8; 
-        window.speechSynthesis.speak(utterance);
-    }
-
-    // --- CORE CANVAS HELPERS ---
-    function getEventPos(canvasEl, e) {
-        const rect = canvasEl.getBoundingClientRect();
-        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-        return {
-            x: (clientX - rect.left) * (canvasEl.width / rect.width),
-            y: (clientY - rect.top) * (canvasEl.height / rect.height)
-        };
-    }
-
-    // THE FIX: Only counts opaque pixels that have been covered by non-white ink
-    function checkTracingProgress(canvasEl, ctx, threshold, successCallback) {
-        const imgData = ctx.getImageData(0, 0, canvasEl.width, canvasEl.height).data;
-        let total = 0, filled = 0;
-        for (let i = 0; i < imgData.length; i += 4) {
-            if (imgData[i+3] > 50) { // Outline pixel exists
-                total++;
-                // If it is NOT white (ink covers it)
-                if (imgData[i] < 200 || imgData[i+1] < 200 || imgData[i+2] < 200) {
-                    filled++;
-                }
-            }
+        gameMode = mode;
+        if (category === 'dynamic') {
+            category = document.getElementById('welcomeLanguage').value;
         }
-        if (total > 0 && (filled / total) > threshold) {
-            successCallback();
+        document.getElementById('languageSelect').value = category;
+        currentCategory = category;
+        tracingMode = traceType;
+        currentIndex = 0;
+    }
+
+    function goHome() {
+        document.getElementById('startOverlay').style.display = 'flex';
+        document.getElementById('modeTracing').classList.add('hidden');
+        document.getElementById('modeMatching').classList.add('hidden');
+        document.getElementById('modeMath').classList.add('hidden');
+        document.getElementById('modeCountFill').classList.add('hidden');
+        document.getElementById('tracingModeContainer').style.display = 'none';
+        
+        window.speechSynthesis.cancel();
+        clearTimeout(musicInterval);
+        clearInterval(speechInterval);
+        isMusicPlaying = false;
+        
+        const btn = document.getElementById('btnMusic');
+        btn.textContent = "🎵 Off";
+        btn.classList.replace('bg-green-100', 'bg-pink-100');
+        btn.classList.replace('text-green-600', 'text-pink-600');
+    }
+
+    function startGame() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        isMusicPlaying = true;
+        document.getElementById('startOverlay').style.display = 'none';
+        
+        // Hide/Show correct UI
+        document.getElementById('modeTracing').classList.toggle('hidden', gameMode !== 'trace');
+        document.getElementById('modeMatching').classList.toggle('hidden', gameMode !== 'match');
+        document.getElementById('modeMath').classList.toggle('hidden', gameMode !== 'math');
+        document.getElementById('modeCountFill').classList.toggle('hidden', gameMode !== 'count_fill');
+        document.getElementById('tracingModeContainer').style.display = gameMode === 'trace' ? 'flex' : 'none';
+
+        updateTracingModeUI();
+        playMelodyStep(); 
+
+        if (gameMode === 'trace') {
+            paths = [];
+            isCelebrating = false;
+            redrawEverything();
+            startRepeatingSpeech();
+        } else if (gameMode === 'match') {
+            generateMatchingPairs();
+        } else if (gameMode === 'math') {
+            setMathLevel(1);
+        } else if (gameMode === 'count_fill') {
+            isCelebrating = false;
+            initCountFill();
         }
     }
 
+    // --- MUSIC ENGINE (Mary Had A Little Lamb) ---
+    const bouncyMelody = [
+      { f: 329, d: 300 }, { f: 293, d: 300 }, { f: 261, d: 300 }, { f: 293, d: 300 }, 
+      { f: 329, d: 300 }, { f: 329, d: 300 }, { f: 329, d: 600 },
+      { f: 293, d: 300 }, { f: 293, d: 300 }, { f: 293, d: 600 }, 
+      { f: 329, d: 300 }, { f: 392, d: 300 }, { f: 392, d: 600 }
+    ];
+    let noteIndex = 0;
 
-    // ==========================================
-    // GAME 1: TRACING GAME
-    // ==========================================
-    const tCanvas = document.getElementById('tracingCanvas');
-    const tCtx = tCanvas.getContext('2d');
-    let tIsDrawing = false, tColor = 'red', tIndex = 0, tPaths = [], tCurrentPath = [], tDone = false;
-
-    function startTracing(cat) {
-        document.getElementById('languageSelect').value = cat;
-        changeTracingLang();
-        showView('view-tracing');
+    function playTone(freq, type = 'square', duration = 0.3, volume = 0.15) {
+      if(!audioCtx) return;
+      try {
+        let osc = audioCtx.createOscillator();
+        let gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
     }
 
-    function changeTracingLang() {
-        tIndex = 0; 
-        tPaths = []; 
-        tDone = false;
-        renderTracing();
+    function playMelodyStep() {
+      if (!isMusicPlaying) return;
+      let note = bouncyMelody[noteIndex];
+      playTone(note.f, 'square', note.d / 1000, 0.1); 
+      noteIndex = (noteIndex + 1) % bouncyMelody.length;
+      musicInterval = setTimeout(playMelodyStep, note.d + 50); 
     }
 
-    function nextTracing() {
-        let cat = document.getElementById('languageSelect').value;
-        tIndex++;
-        if (tIndex >= libraries[cat].length) tIndex = 0;
-        tPaths = []; tDone = false;
-        renderTracing();
-        speakAloud();
+    function toggleMusic() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      isMusicPlaying = !isMusicPlaying;
+      const btn = document.getElementById('btnMusic');
+      if (isMusicPlaying) {
+        btn.textContent = "🎵 On";
+        btn.classList.replace('bg-pink-100', 'bg-green-100');
+        btn.classList.replace('text-pink-600', 'text-green-600');
+        playMelodyStep();
+      } else {
+        btn.textContent = "🎵 Off";
+        btn.classList.replace('bg-green-100', 'bg-pink-100');
+        btn.classList.replace('text-green-600', 'text-pink-600');
+        clearTimeout(musicInterval);
+      }
     }
 
-    function prevTracing() {
-        let cat = document.getElementById('languageSelect').value;
-        tIndex--;
-        if (tIndex < 0) tIndex = libraries[cat].length - 1;
-        tPaths = []; tDone = false;
-        renderTracing();
-        speakAloud();
-    }
-
-    function clearTracing() { tPaths = []; tDone = false; renderTracing(); }
-
-    function renderTracing() {
-        let cat = document.getElementById('languageSelect').value;
-        const item = libraries[cat][tIndex];
-        let text = item.l;
-
-        tCtx.clearRect(0, 0, tCanvas.width, tCanvas.height);
-        
-        // Font setup
-        let fontName = "Noto Sans";
-        if (cat === 'hindi') fontName = "Noto Sans Devanagari";
-        else if (cat === 'telugu') fontName = "Noto Sans Telugu";
-        else if (cat === 'tamil') fontName = "Noto Sans Tamil";
-        else if (cat === 'bengali') fontName = "Noto Sans Bengali";
-        else if (cat === 'arabic') fontName = "Noto Sans Arabic";
-        else if (cat === 'urdu') fontName = "Noto Nastaliq Urdu";
-
-        let fontSize = text.length > 2 ? 150 : 300;
-        
-        tCtx.globalCompositeOperation = "source-over"; 
-        tCtx.textAlign = "center";
-        tCtx.textBaseline = "middle";
-        tCtx.font = `bold ${fontSize}px '${fontName}', sans-serif`; 
-        tCtx.fillStyle = "white"; 
-        tCtx.fillText(text, tCanvas.width/2, tCanvas.height/2);
-
-        // Draw Ink Inside
-        tCtx.globalCompositeOperation = "source-atop";
-        tCtx.lineCap = "round";
-        tCtx.lineJoin = "round";
-        tCtx.lineWidth = 150; // MASSIVE MARKER
-
-        for (let path of tPaths) {
-            if (path.points.length === 0) continue;
-            tCtx.strokeStyle = path.color;
-            tCtx.beginPath();
-            tCtx.moveTo(path.points[0].x, path.points[0].y);
-            for (let i = 1; i < path.points.length; i++) tCtx.lineTo(path.points[i].x, path.points[i].y);
-            tCtx.stroke();
+    // --- POINTS ENGINE ---
+    function addPoints(amount) {
+        globalScore += amount;
+        const scoreEl = document.getElementById('scoreDisplay');
+        if (scoreEl) {
+            scoreEl.textContent = `⭐ ${globalScore}`;
+            scoreEl.classList.add('scale-125', 'text-green-500');
+            setTimeout(() => {
+                scoreEl.classList.remove('scale-125', 'text-green-500');
+            }, 300);
         }
-
-        // Draw Black Border
-        tCtx.globalCompositeOperation = "source-over"; 
-        tCtx.strokeStyle = "black";
-        tCtx.lineWidth = text.length > 2 ? 5 : 15;
-        tCtx.strokeText(text, tCanvas.width/2, tCanvas.height/2);
-
-        // Update Footer
-        let footer = document.getElementById('tracingFooter');
-        if (item.e && item.w) footer.innerHTML = `<span>${item.e}</span> <span>${item.w}</span>`;
-        else footer.innerHTML = '';
     }
 
-    function handleTracingEnd() {
-        tIsDrawing = false;
-        if (!tDone) {
-            checkTracingProgress(tCanvas, tCtx, 0.85, () => {
-                tDone = true;
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-                addPoints(document.getElementById('languageSelect').value === 'sight_words' ? 20 : 10);
-                setTimeout(nextTracing, 1500);
+    function showResetModal() {
+        const modal = document.getElementById('resetScoreModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeResetModal() {
+        const modal = document.getElementById('resetScoreModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function confirmResetScore() {
+        globalScore = 0;
+        const scoreEl = document.getElementById('scoreDisplay');
+        if (scoreEl) scoreEl.textContent = `⭐ 0`;
+        closeResetModal();
+    }
+
+    // --- SPEECH ENGINE ---
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+
+    const ttsCache = {};
+
+    function pcmToWav(pcm16, sampleRate) {
+        const numChannels = 1;
+        const byteRate = sampleRate * numChannels * 2;
+        const blockAlign = numChannels * 2;
+        const buffer = new ArrayBuffer(44 + pcm16.byteLength);
+        const view = new DataView(buffer);
+        const writeString = (offset, string) => { for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i)); };
+        writeString(0, 'RIFF');
+        view.setUint32(4, 36 + pcm16.byteLength, true);
+        writeString(8, 'WAVE');
+        writeString(12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true); // PCM
+        view.setUint16(22, numChannels, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, byteRate, true);
+        view.setUint16(32, blockAlign, true);
+        view.setUint16(34, 16, true); // 16-bit
+        writeString(36, 'data');
+        view.setUint32(40, pcm16.byteLength, true);
+        const pcmView = new Int16Array(pcm16.buffer, pcm16.byteOffset, pcm16.length);
+        for (let i = 0; i < pcmView.length; i++) view.setInt16(44 + i * 2, pcmView[i], true);
+        return new Blob([view], { type: 'audio/wav' });
+    }
+
+    function base64ToArrayBuffer(base64) {
+        const binary_string = window.atob(base64);
+        const len = binary_string.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) bytes[i] = binary_string.charCodeAt(i);
+        return bytes.buffer;
+    }
+
+    async function fetchHighQualityAudio(text) {
+        if (ttsCache[text]) return ttsCache[text];
+        try {
+            const payload = {
+                contents: [{ parts: [{ text: "Say cheerfully: " + text }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            const apiKey = ""; // Implicit Canvas API key injection
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
+            const result = await response.json();
+            const part = result?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = part?.inlineData?.data;
+            const mimeType = part?.inlineData?.mimeType;
+
+            if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 24000;
+                const pcmData = base64ToArrayBuffer(audioData);
+                const pcm16 = new Int16Array(pcmData);
+                const wavBlob = pcmToWav(pcm16, sampleRate);
+                const audioUrl = URL.createObjectURL(wavBlob);
+                ttsCache[text] = audioUrl;
+                return audioUrl;
+            }
+        } catch (e) {
+            console.log("High-quality audio fallback", e);
+        }
+        return null;
+    }
+
+    function startRepeatingSpeech() {
+      clearInterval(speechInterval);
+      if (gameMode === 'trace' && !isCelebrating) {
+          speakAloud();
+          speechInterval = setInterval(speakAloud, 4500); // Sings every 4.5 seconds
+      } else if (gameMode === 'match') {
+          let u = new SpeechSynthesisUtterance("Match the words!");
+          u.rate = 0.8; window.speechSynthesis.speak(u);
+      }
+    }
+
+    async function speakAloud() {
+      window.speechSynthesis.cancel();
+      let item = libraries[currentCategory][currentIndex];
+      let textToSpeak = "";
+
+      // Native Grammar Construction
+      if (tracingMode === 'word' && item.w) {
+          textToSpeak = item.w;
+      } else if (item.w) {
+          if (currentCategory === 'english' || currentCategory === 'lowercase') textToSpeak = `${item.l}... for... ${item.w}`;
+          else if (currentCategory === 'hindi') textToSpeak = `${item.l}... से... ${item.w}`;
+          else if (currentCategory === 'telugu') textToSpeak = `${item.l}... అంటే... ${item.w}`;
+          else if (currentCategory === 'tamil') textToSpeak = `${item.l}... என்றால்... ${item.w}`;
+          else if (currentCategory === 'bengali') textToSpeak = `${item.l}... তে... ${item.w}`;
+          else if (currentCategory === 'urdu') textToSpeak = `${item.l}... سے... ${item.w}`;
+          else textToSpeak = `${item.l}... ${item.w}`;
+      } else {
+          textToSpeak = item.w || item.l || item;
+      }
+
+      // Trigger high quality studio audio for English Alphabets
+      if ((currentCategory === 'english' || currentCategory === 'lowercase') && tracingMode === 'letter' && item.w) {
+          const hqAudio = await fetchHighQualityAudio(textToSpeak);
+          if (hqAudio) {
+              const audio = new Audio(hqAudio);
+              audio.play();
+              return;
+          }
+      }
+
+      let utterance = new SpeechSynthesisUtterance(textToSpeak);
+      
+      let targetLang = 'en-US';
+      if(currentCategory === 'hindi') targetLang = 'hi-IN';
+      else if(currentCategory === 'telugu') targetLang = 'te-IN';
+      else if(currentCategory === 'tamil') targetLang = 'ta-IN';
+      else if(currentCategory === 'bengali') targetLang = 'bn-IN';
+      else if(currentCategory === 'arabic') targetLang = 'ar-SA';
+      else if(currentCategory === 'urdu') targetLang = 'ur-PK';
+
+      utterance.lang = targetLang;
+      utterance.pitch = 1.5; // High, happy singing pitch!
+      utterance.rate = 0.65; // Slowed down for kids
+      
+      // Force native voice if available, otherwise it falls back safely to default reading unicode
+      let voices = window.speechSynthesis.getVoices();
+      let bestVoice = voices.find(v => v.lang.startsWith(targetLang.split('-')[0]));
+      if (bestVoice) utterance.voice = bestVoice;
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // --- CONTROLS ---
+    function setTracingMode(mode) {
+        tracingMode = mode;
+        updateTracingModeUI();
+        paths = [];
+        isCelebrating = false;
+        redrawEverything();
+        startRepeatingSpeech();
+    }
+
+    function updateTracingModeUI() {
+        // Dynamically rename the tabs to make Number tracing clearer!
+        const isNum = currentCategory === 'numbers';
+        document.getElementById('tabLetter').innerHTML = isNum ? '🔤 Digit' : '🔤 Letter';
+        document.getElementById('tabWord').innerHTML = isNum ? '🔢 Number Name' : '🍎 Word';
+        
+        document.getElementById('tabLetter').className = tracingMode === 'letter' ? "px-4 py-2 rounded-full text-md md:text-lg font-bold transition-all bg-yellow-400 text-yellow-900 shadow-md" : "px-4 py-2 rounded-full text-md md:text-lg font-bold transition-all text-blue-800 hover:bg-blue-200/40";
+        document.getElementById('tabWord').className = tracingMode === 'word' ? "px-4 py-2 rounded-full text-md md:text-lg font-bold transition-all bg-yellow-400 text-yellow-900 shadow-md" : "px-4 py-2 rounded-full text-md md:text-lg font-bold transition-all text-blue-800 hover:bg-blue-200/40";
+    }
+
+    function changeColor(color, btn) {
+      currentColor = color;
+      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active', 'ring-4'));
+      btn.classList.add('active', 'ring-4');
+      playTone(600, 'sine', 0.1);
+    }
+
+    function changeLanguage() {
+      currentCategory = document.getElementById('languageSelect').value;
+      currentIndex = 0; 
+      paths = [];
+      isCelebrating = false;
+      if (gameMode === 'trace') {
+        redrawEverything();
+        startRepeatingSpeech();
+      } else {
+        generateMatchingPairs();
+      }
+    }
+
+    function goNext() {
+      currentIndex = (currentIndex + 1) % libraries[currentCategory].length;
+      paths = [];
+      isCelebrating = false;
+      redrawEverything();
+      startRepeatingSpeech();
+    }
+
+    function goPrev() {
+      currentIndex = (currentIndex - 1 + libraries[currentCategory].length) % libraries[currentCategory].length;
+      paths = [];
+      isCelebrating = false;
+      redrawEverything();
+      startRepeatingSpeech();
+    }
+
+    function clearCanvas() {
+      paths = [];
+      isCelebrating = false;
+      document.getElementById('txtProgress').textContent = "0%";
+      redrawEverything();
+      startRepeatingSpeech();
+    }
+
+    function celebrate() {
+      if(isCelebrating) return;
+      isCelebrating = true;
+      clearInterval(speechInterval);
+      window.speechSynthesis.cancel();
+      
+      // Award Points based on tracing mode
+      let pts = tracingMode === 'word' ? 20 : 10;
+      addPoints(pts);
+
+      // Victory Chime!
+      playTone(523, 'sine', 0.2, 0.4); setTimeout(() => playTone(659, 'sine', 0.2, 0.4), 150);
+      setTimeout(() => playTone(784, 'sine', 0.3, 0.4), 300); setTimeout(() => playTone(1046, 'sine', 0.5, 0.4), 450);
+
+      confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+      
+      setTimeout(() => { goNext(); }, 2000); 
+    }
+
+    // --- SMART STENCIL MATH & LOGIC ---
+    function getTraceTextAndFont() {
+      const itemToDraw = libraries[currentCategory][currentIndex];
+      let text = tracingMode === 'word' && itemToDraw.w ? itemToDraw.w : (itemToDraw.l ? itemToDraw.l : itemToDraw);
+      
+      let fontName = "Noto Sans";
+      if (currentCategory === 'hindi') fontName = "Noto Sans Devanagari";
+      else if (currentCategory === 'telugu') fontName = "Noto Sans Telugu";
+      else if (currentCategory === 'tamil') fontName = "Noto Sans Tamil";
+      else if (currentCategory === 'bengali') fontName = "Noto Sans Bengali";
+      else if (currentCategory === 'arabic') fontName = "Noto Sans Arabic";
+      else if (currentCategory === 'urdu') fontName = "Noto Nastaliq Urdu";
+
+      // Dynamic Font Resizing for long words!
+      ctx.font = `bold 250px '${fontName}', sans-serif`;
+      let fontSize = 250;
+      while(ctx.measureText(text).width > canvas.width - 60 && fontSize > 40) {
+          fontSize -= 10;
+          ctx.font = `bold ${fontSize}px '${fontName}', sans-serif`;
+      }
+      return { text, fontName, fontSize };
+    }
+
+    function updateScannerTarget(text, fontName, fontSize) {
+      const scanCanvas = document.createElement('canvas');
+      scanCanvas.width = 200; scanCanvas.height = 140; // High res scanner
+      const scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
+      
+      scanCtx.fillStyle = "black";
+      scanCtx.fillRect(0, 0, 200, 140);
+      scanCtx.fillStyle = "white"; 
+      scanCtx.textAlign = "center";
+      scanCtx.textBaseline = "middle";
+      
+      // Scale font down to fit scanner
+      let scaledFontSize = fontSize * (200 / canvas.width);
+      scanCtx.font = `bold ${scaledFontSize}px '${fontName}', sans-serif`;
+      scanCtx.fillText(text, 100, 70);
+
+      const imgData = scanCtx.getImageData(0, 0, 200, 140).data;
+      totalTargetPixels = 0;
+      for (let i = 0; i < imgData.length; i += 4) {
+        if (imgData[i] > 128) totalTargetPixels++;
+      }
+    }
+
+    function checkCompletion() {
+      if (totalTargetPixels === 0 || isCelebrating) return;
+
+      const { text, fontName, fontSize } = getTraceTextAndFont();
+      const scanCanvas = document.createElement('canvas');
+      scanCanvas.width = 200; scanCanvas.height = 140;
+      const scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
+      
+      let scaledFontSize = fontSize * (200 / canvas.width);
+      scanCtx.textAlign = "center";
+      scanCtx.textBaseline = "middle";
+      scanCtx.font = `bold ${scaledFontSize}px '${fontName}', sans-serif`;
+      
+      scanCtx.globalCompositeOperation = "source-over";
+      scanCtx.fillStyle = "white";
+      scanCtx.fillText(text, 100, 70);
+
+      scanCtx.globalCompositeOperation = "source-atop";
+      scanCtx.lineCap = "round";
+      scanCtx.lineJoin = "round";
+      
+      // Dynamic Marker size for scanner
+      let markerSize = Math.max(40, fontSize * 0.4);
+      scanCtx.lineWidth = markerSize * (200 / canvas.width);
+
+      const scaleX = 200 / canvas.width;
+      const scaleY = 140 / canvas.height;
+
+      for (let path of paths) {
+        if (path.points.length === 0) continue;
+        scanCtx.strokeStyle = path.color;
+        scanCtx.beginPath();
+        scanCtx.moveTo(path.points[0].x * scaleX, path.points[0].y * scaleY);
+        for (let i = 1; i < path.points.length; i++) {
+          scanCtx.lineTo(path.points[i].x * scaleX, path.points[i].y * scaleY);
+        }
+        scanCtx.stroke();
+      }
+
+      const imgData = scanCtx.getImageData(0, 0, 200, 140).data;
+      let filledPixels = 0;
+      for (let i = 0; i < imgData.length; i += 4) {
+        // If pixel is NOT white/transparent, it's user ink!
+        if (imgData[i+3] > 128 && (imgData[i] < 250 || imgData[i+1] < 250 || imgData[i+2] < 250)) {
+          filledPixels++;
+        }
+      }
+
+      let progress = Math.min(100, Math.round((filledPixels / totalTargetPixels) * 100));
+      document.getElementById('txtProgress').textContent = progress + "%";
+
+      // 95% Completion Target!
+      if (progress >= 95) {
+        celebrate();
+      }
+    }
+
+    function redrawEverything() {
+      const itemToDraw = libraries[currentCategory][currentIndex];
+      const { text, fontName, fontSize } = getTraceTextAndFont();
+
+      if (paths.length === 0) updateScannerTarget(text, fontName, fontSize);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      let letterCenterY = (canvas.height / 2); 
+
+      // 1. STENCIL: Draw solid white shape
+      ctx.globalCompositeOperation = "source-over"; 
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.font = `bold ${fontSize}px '${fontName}', sans-serif`; 
+      ctx.fillStyle = "white"; 
+      ctx.fillText(text, canvas.width/2, letterCenterY);
+
+      // 2. INK: Draw inside the stencil ONLY
+      ctx.globalCompositeOperation = "source-atop";
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      
+      // Dynamic Marker: Thinner for finer control
+      let markerSize = Math.max(20, fontSize * 0.15);
+      ctx.lineWidth = markerSize; 
+
+      for (let path of paths) {
+        if (path.points.length === 0) continue;
+        ctx.strokeStyle = path.color;
+        ctx.beginPath();
+        ctx.moveTo(path.points[0].x, path.points[0].y);
+        for (let i = 1; i < path.points.length; i++) {
+          ctx.lineTo(path.points[i].x, path.points[i].y);
+        }
+        ctx.stroke();
+      }
+
+      // 3. BORDER: Crisp border over ink
+      ctx.globalCompositeOperation = "source-over"; 
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = Math.max(8, fontSize * 0.06); // Thicker, bolder black borders
+      ctx.strokeText(text, canvas.width/2, letterCenterY);
+
+      // 4. MASSIVE HTML FOOTER (Vibrant Twemoji + Giant Word)
+      const footer = document.getElementById('tracingFooter');
+      
+      if (currentCategory === 'numbers' && itemToDraw.eCount) {
+          footer.innerHTML = '';
+          
+          footer.style.flexDirection = 'column';
+          footer.style.height = 'auto';
+          footer.style.minHeight = '130px';
+          footer.style.paddingTop = '10px';
+          footer.style.paddingBottom = '10px';
+          
+          let title = document.createElement('div');
+          title.className = "text-2xl md:text-4xl font-extrabold text-indigo-900 mb-2 w-full text-center";
+          title.textContent = itemToDraw.l + " - " + itemToDraw.w;
+          
+          let grid = document.createElement('div');
+          grid.className = "flex flex-wrap justify-center gap-1 w-full max-w-full overflow-y-auto max-h-[90px]";
+          
+          let emSize = itemToDraw.eCount > 50 ? '1rem' : itemToDraw.eCount > 20 ? '1.5rem' : '2rem';
+          for(let i=0; i<itemToDraw.eCount; i++) {
+              let emSpan = document.createElement('span');
+              emSpan.textContent = itemToDraw.eBase;
+              emSpan.style.fontSize = emSize;
+              emSpan.style.lineHeight = '1';
+              grid.appendChild(emSpan);
+          }
+          
+          footer.appendChild(title);
+          footer.appendChild(grid);
+          twemoji.parse(grid, { folder: 'svg', ext: '.svg' });
+          
+      } else {
+          footer.innerHTML = '<div id="footerPic" class="w-1/3 flex justify-center items-center"></div><div id="footerWord" class="w-2/3 flex justify-center items-center text-3xl md:text-5xl font-extrabold text-indigo-900 text-center"></div>';
+          footer.style.flexDirection = 'row';
+          footer.style.height = '130px';
+          footer.style.paddingTop = '8px';
+          footer.style.paddingBottom = '8px';
+          
+          const picDiv = document.getElementById('footerPic');
+          const wordDiv = document.getElementById('footerWord');
+
+          if (itemToDraw.e && itemToDraw.w) {
+            picDiv.innerHTML = itemToDraw.e;
+            wordDiv.textContent = itemToDraw.w;
+            wordDiv.style.fontFamily = `'${fontName}', sans-serif`;
+            twemoji.parse(picDiv, { folder: 'svg', ext: '.svg' });
+          }
+      }
+    }
+
+    function getPointerPos(e, targetCanvas) {
+      const rect = targetCanvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const scaleX = targetCanvas.width / rect.width;
+      const scaleY = targetCanvas.height / rect.height;
+      return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    }
+
+    function onTraceStart(e) {
+      if(isCelebrating) return;
+      isDrawing = true;
+      currentPath = [getPointerPos(e, canvas)];
+      paths.push({ color: currentColor, points: currentPath });
+      redrawEverything();
+    }
+
+    function onTraceMove(e) {
+      if (!isDrawing || isCelebrating) return;
+      const pt = getPointerPos(e, canvas);
+      currentPath.push(pt);
+      if (currentPath.length % 5 === 0) playTone(300 + (pt.y % 150), 'sine', 0.05, 0.05); 
+      redrawEverything();
+    }
+
+    function onTraceEnd() { 
+      if(!isDrawing) return;
+      isDrawing = false; 
+      checkCompletion(); // Scan pixels on lift!
+    }
+
+    canvas.addEventListener('mousedown', onTraceStart);
+    canvas.addEventListener('mousemove', onTraceMove);
+    canvas.addEventListener('mouseup', onTraceEnd);
+    canvas.addEventListener('mouseout', onTraceEnd);
+
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onTraceStart(e); }, {passive: false});
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); onTraceMove(e); }, {passive: false});
+    canvas.addEventListener('touchend', (e) => { e.preventDefault(); onTraceEnd(); }, {passive: false});
+
+    // ============================================== 
+    // MATCHING GAME ENGINE
+    // ============================================== 
+    function generateMatchingPairs() {
+      let items = libraries[currentCategory].filter(item => typeof item === 'object' && (item.e !== undefined || item.eCount !== undefined));
+      
+      // Limit matching game specifically to counts 1-10 so visual fits on screen cleanly
+      if (currentCategory === 'numbers') {
+          items = items.filter(item => item.eCount <= 10);
+      }
+      
+      if (items.length < 3) items = [...libraries.english]; // Fallback
+
+      items.sort(() => 0.5 - Math.random());
+      const selected = items.slice(0, 3);
+      const leftShuffled = [...selected].sort(() => 0.5 - Math.random());
+      const rightShuffled = [...selected].sort(() => 0.5 - Math.random());
+
+      leftNodes = []; rightNodes = [];
+      dragStartNode = null; isDraggingMatch = false;
+
+      const leftCol = document.getElementById('matchLeftCol');
+      const rightCol = document.getElementById('matchRightCol');
+      leftCol.innerHTML = ''; rightCol.innerHTML = '';
+
+      let fontName = "Noto Sans";
+      if (currentCategory === 'hindi') fontName = "Noto Sans Devanagari";
+      else if (currentCategory === 'telugu') fontName = "Noto Sans Telugu";
+      else if (currentCategory === 'arabic') fontName = "Noto Sans Arabic";
+      else if (currentCategory === 'urdu') fontName = "Noto Nastaliq Urdu";
+
+      for (let i = 0; i < 3; i++) {
+        // Left Nodes (Emoji or Symbol Grid)
+        const lNode = document.createElement('div');
+        lNode.className = "match-emoji w-24 h-24 md:w-32 md:h-32 bg-yellow-100 rounded-full flex items-center justify-center border-4 border-yellow-400 shadow-lg cursor-pointer transition-all hover:scale-105 z-20 overflow-hidden relative";
+        
+        if (currentCategory === 'numbers') {
+            // Show grid of emojis for number match
+            const dispCount = Math.min(leftShuffled[i].eCount, 9); // Cap to 9 for visual fit
+            let html = '<div class="flex flex-wrap justify-center content-center w-full h-full p-2">';
+            let size = dispCount > 4 ? '15px' : '25px';
+            for(let k=0; k<dispCount; k++) html += `<span style="font-size: ${size}; line-height: 1;">${leftShuffled[i].eBase}</span>`;
+            html += '</div>';
+            lNode.innerHTML = html;
+        } else {
+            lNode.innerHTML = leftShuffled[i].e;
+        }
+        
+        lNode.id = `leftNode_${i}`;
+        leftCol.appendChild(lNode);
+        twemoji.parse(lNode, { folder: 'svg', ext: '.svg' }); 
+
+        // Right Nodes (Words/Numbers)
+        const rNode = document.createElement('div');
+        rNode.className = "w-40 md:w-64 py-4 md:py-6 bg-blue-100 rounded-full flex items-center justify-center border-4 border-blue-400 shadow-lg cursor-pointer transition-all hover:scale-105 z-20 px-2";
+        
+        let rText = currentCategory === 'numbers' ? `${rightShuffled[i].l} - ${rightShuffled[i].w}` : rightShuffled[i].w;
+        rNode.innerHTML = `<span style="font-family: '${fontName}', sans-serif" class="text-xl md:text-3xl font-bold text-blue-900 text-center truncate w-full px-2">${rText}</span>`;
+        rNode.id = `rightNode_${i}`;
+        rightCol.appendChild(rNode);
+
+        leftNodes.push({ el: lNode, val: leftShuffled[i], matched: false });
+        rightNodes.push({ el: rNode, val: rightShuffled[i], matched: false });
+      }
+
+      setTimeout(attachMatchListeners, 100);
+      redrawMatchingLines();
+    }
+
+    function getCenter(el) {
+      const boardRect = document.getElementById('matchBoard').getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const scaleX = mCanvas.width / boardRect.width;
+      const scaleY = mCanvas.height / boardRect.height;
+      return {
+        x: (elRect.left - boardRect.left + elRect.width / 2) * scaleX,
+        y: (elRect.top - boardRect.top + elRect.height / 2) * scaleY
+      };
+    }
+
+    function redrawMatchingLines() {
+      const boardRect = document.getElementById('matchBoard').getBoundingClientRect();
+      mCanvas.width = boardRect.width;
+      mCanvas.height = boardRect.height;
+      mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+      mCtx.lineCap = "round";
+
+      leftNodes.forEach(left => {
+        if (left.matched) {
+          const right = rightNodes.find(r => r.val.l === left.val.l);
+          if (right) {
+            const p1 = getCenter(left.el);
+            const p2 = getCenter(right.el);
+            mCtx.strokeStyle = "#22c55e"; 
+            mCtx.lineWidth = 15;
+            mCtx.beginPath(); mCtx.moveTo(p1.x, p1.y); mCtx.lineTo(p2.x, p2.y); mCtx.stroke();
+          }
+        }
+      });
+
+      if (isDraggingMatch && dragStartNode && currentDragPos) {
+        const p1 = getCenter(dragStartNode.el);
+        mCtx.strokeStyle = "#eab308"; 
+        mCtx.lineWidth = 15;
+        mCtx.beginPath(); mCtx.moveTo(p1.x, p1.y); mCtx.lineTo(currentDragPos.x, currentDragPos.y); mCtx.stroke();
+      }
+    }
+
+    function attachMatchListeners() {
+      const board = document.getElementById('matchBoard');
+      
+      function onStart(e, node) {
+        if (node.matched) return;
+        isDraggingMatch = true;
+        dragStartNode = node;
+        currentDragPos = getPointerPos(e, mCanvas);
+        playTone(400, 'square', 0.1);
+        redrawMatchingLines();
+      }
+
+      function onMove(e) {
+        if (!isDraggingMatch) return;
+        currentDragPos = getPointerPos(e, mCanvas);
+        redrawMatchingLines();
+      }
+
+      function onEnd(e) {
+        if (!isDraggingMatch || !dragStartNode) return;
+        const touchX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
+        const touchY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+        
+        let targetEl = document.elementFromPoint(touchX, touchY);
+        if(targetEl) targetEl = targetEl.closest('#matchRightCol > div'); 
+
+        if (targetEl) {
+          const targetNode = rightNodes.find(r => r.el.id === targetEl.id);
+          if (targetNode && !targetNode.matched) {
+            if (dragStartNode.val.l === targetNode.val.l) {
+              dragStartNode.matched = true; targetNode.matched = true;
+              dragStartNode.el.classList.replace('bg-yellow-100', 'bg-green-200');
+              targetNode.el.classList.replace('bg-blue-100', 'bg-green-200');
+              playTone(440, 'square', 0.15); setTimeout(() => playTone(659, 'square', 0.3), 150);
+
+              if (leftNodes.every(n => n.matched)) {
+                addPoints(30); // +30 Points for finishing the match game
+                setTimeout(() => {
+                  confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+                  playTone(523, 'square', 0.2); setTimeout(() => playTone(659, 'square', 0.4), 150);
+                  setTimeout(generateMatchingPairs, 2000);
+                }, 300);
+              }
+            } else playTone(220, 'sawtooth', 0.3); // Buzzer
+          }
+        }
+        isDraggingMatch = false; dragStartNode = null; redrawMatchingLines();
+      }
+
+      leftNodes.forEach(node => {
+        node.el.onmousedown = (e) => onStart(e, node);
+        node.el.ontouchstart = (e) => { e.preventDefault(); onStart(e, node); };
+      });
+      board.onmousemove = onMove;
+      board.ontouchmove = (e) => { e.preventDefault(); onMove(e); };
+      board.onmouseup = onEnd;
+      board.onmouseleave = onEnd;
+      board.ontouchend = (e) => { e.preventDefault(); onEnd(e); };
+    }
+
+    // ============================================== 
+    // MATH GAME ENGINE
+    // ============================================== 
+    function setMathLevel(lvl) {
+        mathLevel = lvl;
+        document.querySelectorAll('.math-level-btn').forEach(btn => btn.classList.remove('active', 'bg-yellow-300'));
+        document.getElementById('lvl' + lvl).classList.add('active', 'bg-yellow-300');
+        generateMathGame();
+    }
+
+    function getFingersHTML(num) {
+        // Standard finger counting emojis: 0=✊, 1=☝️, 2=✌️, 3=🤟, 4=🖖, 5=🖐️
+        const hands = ['✊', '☝️', '✌️', '🤟', '🖖', '🖐️'];
+        let html = '';
+        while (num > 0) {
+            let n = Math.min(num, 5);
+            html += `<span class="finger-hand drop-shadow-md">${hands[n]}</span>`;
+            num -= n;
+        }
+        if (html === '') html = `<span class="finger-hand drop-shadow-md">${hands[0]}</span>`;
+        return html;
+    }
+
+    function generateMathGame() {
+        let num1, num2, symbol;
+        if (mathLevel === 1) { // Add 1-5
+            num1 = Math.floor(Math.random() * 4) + 1;
+            num2 = Math.floor(Math.random() * (5 - num1)) + 1;
+            mathAnswer = num1 + num2;
+            symbol = '+';
+        } else if (mathLevel === 2) { // Add 1-10
+            num1 = Math.floor(Math.random() * 5) + 1;
+            num2 = Math.floor(Math.random() * 5) + 1;
+            mathAnswer = num1 + num2;
+            symbol = '+';
+        } else { // Subtract
+            num1 = Math.floor(Math.random() * 9) + 2; // 2 to 10
+            num2 = Math.floor(Math.random() * (num1 - 1)) + 1; // 1 to num1-1
+            mathAnswer = num1 - num2;
+            symbol = '-';
+        }
+
+        // Render Equation
+        document.getElementById('mathVisuals').innerHTML = `${getFingersHTML(num1)} <span class="mx-2 text-rose-500 font-extrabold">${symbol}</span> ${getFingersHTML(num2)}`;
+        document.getElementById('mathEquation').textContent = `${num1} ${symbol} ${num2} = ?`;
+
+        // Generate Options
+        let opts = new Set([mathAnswer]);
+        while(opts.size < 3) {
+            let offset = Math.floor(Math.random() * 5) - 2;
+            let fakeAns = mathAnswer + offset;
+            if (fakeAns >= 0 && fakeAns !== mathAnswer && fakeAns <= 15) opts.add(fakeAns);
+        }
+        mathOptions = Array.from(opts).sort(() => Math.random() - 0.5);
+
+        // Render Options
+        const optsContainer = document.getElementById('mathOptions');
+        optsContainer.innerHTML = '';
+        mathOptions.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = "math-option w-20 h-20 md:w-24 md:h-24 bg-gradient-to-br from-blue-400 to-blue-600 text-white font-extrabold text-4xl md:text-5xl rounded-2xl shadow-xl border-4 border-white active:scale-90 flex items-center justify-center";
+            btn.textContent = opt;
+            btn.onclick = () => checkMathAnswer(opt, btn);
+            optsContainer.appendChild(btn);
+        });
+        
+        let u = new SpeechSynthesisUtterance(`${num1} ${symbol === '+' ? 'plus' : 'minus'} ${num2}`);
+        u.rate = 0.8;
+        window.speechSynthesis.speak(u);
+    }
+
+    function checkMathAnswer(ans, btn) {
+        if (ans === mathAnswer) {
+            btn.classList.replace('from-blue-400', 'from-green-400');
+            btn.classList.replace('to-blue-600', 'to-green-600');
+            
+            // Award points based on difficulty (Lvl 1=10, Lvl 2=20, Lvl 3=30)
+            let pts = mathLevel * 10;
+            addPoints(pts);
+            
+            playTone(523, 'sine', 0.1); setTimeout(() => playTone(659, 'sine', 0.2), 100);
+            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+            let u = new SpeechSynthesisUtterance("Correct! " + mathAnswer);
+            window.speechSynthesis.speak(u);
+            setTimeout(generateMathGame, 2000);
+        } else {
+            btn.classList.replace('from-blue-400', 'from-red-400');
+            btn.classList.replace('to-blue-600', 'to-red-600');
+            btn.classList.add('opacity-50');
+            playTone(220, 'sawtooth', 0.3); // Buzzer
         }
     }
 
-    tCanvas.addEventListener('mousedown', e => { tIsDrawing = true; tCurrentPath = [getEventPos(tCanvas, e)]; tPaths.push({ color: tracingColor, points: tCurrentPath }); renderTracing(); });
-    tCanvas.addEventListener('mousemove', e => { if(tIsDrawing) { tCurrentPath.push(getEventPos(tCanvas, e)); renderTracing(); } });
-    tCanvas.addEventListener('mouseup', handleTracingEnd);
-    tCanvas.addEventListener('mouseout', handleTracingEnd);
-    tCanvas.addEventListener('touchstart', e => { e.preventDefault(); tIsDrawing = true; tCurrentPath = [getEventPos(tCanvas, e)]; tPaths.push({ color: tracingColor, points: tCurrentPath }); renderTracing(); }, {passive: false});
-    tCanvas.addEventListener('touchmove', e => { e.preventDefault(); if(tIsDrawing) { tCurrentPath.push(getEventPos(tCanvas, e)); renderTracing(); } }, {passive: false});
-    tCanvas.addEventListener('touchend', e => { e.preventDefault(); handleTracingEnd(); }, {passive: false});
+    // ============================================== 
+    // COUNT & FILL GAME ENGINE
+    // ============================================== 
+    let cfTarget = 1;
+    let cfEmoji = '🍎';
+    let cfFilled = 0;
+    let cfPaths = [];
+    let cfCurrentPath = [];
+    let cfIsDrawing = false;
+    let cfTotalTargetPixels = 0;
+    let cfProgress = 0;
 
+    const cfCanvas = document.getElementById('countFillCanvas');
+    const cfCtx = cfCanvas.getContext('2d', { willReadFrequently: true });
 
-    // ==========================================
-    // GAME 2: COUNT & FILL
-    // ==========================================
-    const cfCanvas = document.getElementById('cfCanvas');
-    const cfCtx = cfCanvas.getContext('2d');
-    let cfIsDrawing = false, cfColor = 'blue', cfIndex = 1, cfPaths = [], cfCurrentPath = [], cfDoneTrace = false, cfTapped = 0;
+    function initCountFill() {
+        cfTarget = Math.floor(Math.random() * 10) + 1;
+        const emojis = ['🍎','🎈','⭐','🚗','🌻','🐱','🍃','🍬','🍓'];
+        cfEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        cfFilled = 0;
+        cfPaths = [];
+        cfProgress = 0;
+        document.getElementById('cfProgress').textContent = "0%";
+        document.getElementById('cfTargetNum').textContent = cfTarget;
 
-    function startCountFill() {
-        cfIndex = 1;
-        renderCF();
-        showView('view-cf');
-    }
-
-    function nextCF() { cfIndex++; if(cfIndex > 10) cfIndex = 1; renderCF(); }
-    function prevCF() { cfIndex--; if(cfIndex < 1) cfIndex = 10; renderCF(); }
-
-    function renderCF() {
-        cfPaths = []; cfDoneTrace = false; cfTapped = 0;
-        
-        // Render Canvas
-        cfCtx.clearRect(0, 0, cfCanvas.width, cfCanvas.height);
-        cfCtx.globalCompositeOperation = "source-over"; 
-        cfCtx.textAlign = "center"; cfCtx.textBaseline = "middle";
-        cfCtx.font = "bold 300px 'Noto Sans', sans-serif"; 
-        cfCtx.fillStyle = "white"; 
-        cfCtx.fillText(cfIndex.toString(), cfCanvas.width/2, cfCanvas.height/2);
-        cfCtx.strokeStyle = "black"; cfCtx.lineWidth = 15;
-        cfCtx.strokeText(cfIndex.toString(), cfCanvas.width/2, cfCanvas.height/2);
-
-        // Render Objects
-        const grid = document.getElementById('cfObjects');
+        const grid = document.getElementById('cfObjectsGrid');
         grid.innerHTML = '';
         for(let i=0; i<10; i++) {
             let el = document.createElement('div');
-            el.className = 'cf-obj';
-            el.innerText = '🍎';
+            // Changed opacity-20 to opacity-40 so unselected objects are easily visible!
+            el.className = "text-4xl md:text-5xl cursor-pointer transition-all active:scale-90 opacity-40 grayscale drop-shadow-none select-none";
+            el.textContent = cfEmoji;
             el.onclick = () => {
-                if(!el.classList.contains('filled')) {
-                    el.classList.add('filled');
-                    playSound('pop');
-                    cfTapped++;
-                    checkCFWin();
+                if (el.classList.contains('opacity-40')) {
+                    el.classList.remove('opacity-40', 'grayscale', 'drop-shadow-none');
+                    el.classList.add('drop-shadow-lg', 'scale-110');
+                    cfFilled++;
+                    playTone(600 + (cfFilled * 50), 'sine', 0.1);
+                } else {
+                    el.classList.add('opacity-40', 'grayscale', 'drop-shadow-none');
+                    el.classList.remove('drop-shadow-lg', 'scale-110');
+                    cfFilled--;
+                    playTone(300, 'sine', 0.1);
                 }
+                checkCountFillWin();
             };
             grid.appendChild(el);
+            // Uses the new cf-emoji class for perfect sizing
+            twemoji.parse(el, { folder: 'svg', ext: '.svg', className: 'cf-emoji' });
         }
+        
+        let u = new SpeechSynthesisUtterance(`Trace the number ${cfTarget}, and fill exactly ${cfTarget} objects!`);
+        u.rate = 0.8;
+        window.speechSynthesis.speak(u);
+
+        updateCfScannerTarget(cfTarget.toString(), "Noto Sans", 200);
+        drawCfStencil();
     }
 
-    function updateCFCanvas() {
-        cfCtx.clearRect(0, 0, cfCanvas.width, cfCanvas.height);
-        cfCtx.globalCompositeOperation = "source-over"; 
-        cfCtx.textAlign = "center"; cfCtx.textBaseline = "middle";
-        cfCtx.font = "bold 300px 'Noto Sans', sans-serif"; 
-        cfCtx.fillStyle = "white"; 
-        cfCtx.fillText(cfIndex.toString(), cfCanvas.width/2, cfCanvas.height/2);
+    function updateCfScannerTarget(text, fontName, fontSize) {
+      const scanCanvas = document.createElement('canvas');
+      scanCanvas.width = 140; scanCanvas.height = 140;
+      const scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
+      scanCtx.fillStyle = "black";
+      scanCtx.fillRect(0, 0, 140, 140);
+      scanCtx.fillStyle = "white"; 
+      scanCtx.textAlign = "center";
+      scanCtx.textBaseline = "middle";
+      let scaledFontSize = fontSize * (140 / cfCanvas.width);
+      scanCtx.font = `bold ${scaledFontSize}px '${fontName}', sans-serif`;
+      scanCtx.fillText(text, 70, 70);
 
+      const imgData = scanCtx.getImageData(0, 0, 140, 140).data;
+      cfTotalTargetPixels = 0;
+      for (let i = 0; i < imgData.length; i += 4) {
+        // FIX: Check the red color channel (imgData[i]) for white text, NOT the alpha channel (imgData[i+3]) which is 255 everywhere because of the black background!
+        if (imgData[i] > 128) cfTotalTargetPixels++;
+      }
+    }
+
+    function drawCfStencil() {
+        cfCtx.clearRect(0, 0, cfCanvas.width, cfCanvas.height);
+        
+        const fontName = "Noto Sans";
+        const text = cfTarget.toString();
+        const fontSize = 200;
+        const letterCenterY = cfCanvas.height / 2;
+        
+        // 1. Stencil
+        cfCtx.globalCompositeOperation = "source-over"; 
+        cfCtx.textAlign = "center";
+        cfCtx.textBaseline = "middle";
+        cfCtx.font = `bold ${fontSize}px '${fontName}', sans-serif`; 
+        cfCtx.fillStyle = "white"; 
+        cfCtx.fillText(text, cfCanvas.width/2, letterCenterY);
+
+        // 2. Ink
         cfCtx.globalCompositeOperation = "source-atop";
-        cfCtx.lineCap = "round"; cfCtx.lineJoin = "round"; cfCtx.lineWidth = 150;
+        cfCtx.lineCap = "round";
+        cfCtx.lineJoin = "round";
+        cfCtx.lineWidth = 150; // Increased from 100 to 150 for massive, easy-filling marker
+
         for (let path of cfPaths) {
             if (path.points.length === 0) continue;
             cfCtx.strokeStyle = path.color;
             cfCtx.beginPath();
             cfCtx.moveTo(path.points[0].x, path.points[0].y);
-            for (let i = 1; i < path.points.length; i++) cfCtx.lineTo(path.points[i].x, path.points[i].y);
+            for (let i = 1; i < path.points.length; i++) {
+                cfCtx.lineTo(path.points[i].x, path.points[i].y);
+            }
             cfCtx.stroke();
         }
-
-        cfCtx.globalCompositeOperation = "source-over"; 
-        cfCtx.strokeStyle = "black"; cfCtx.lineWidth = 15;
-        cfCtx.strokeText(cfIndex.toString(), cfCanvas.width/2, cfCanvas.height/2);
-    }
-
-    function checkCFWin() {
-        if (cfDoneTrace && cfTapped === cfIndex) {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            addPoints(25);
-            setTimeout(nextCF, 1500);
-        }
-    }
-
-    function handleCFEnd() {
-        cfIsDrawing = false;
-        if (!cfDoneTrace) {
-            checkTracingProgress(cfCanvas, cfCtx, 0.80, () => {
-                cfDoneTrace = true;
-                playSound('win');
-                checkCFWin();
-            });
-        }
-    }
-
-    cfCanvas.addEventListener('mousedown', e => { cfIsDrawing = true; cfCurrentPath = [getEventPos(cfCanvas, e)]; cfPaths.push({ color: cfColor, points: cfCurrentPath }); updateCFCanvas(); });
-    cfCanvas.addEventListener('mousemove', e => { if(cfIsDrawing) { cfCurrentPath.push(getEventPos(cfCanvas, e)); updateCFCanvas(); } });
-    cfCanvas.addEventListener('mouseup', handleCFEnd);
-    cfCanvas.addEventListener('mouseout', handleCFEnd);
-    cfCanvas.addEventListener('touchstart', e => { e.preventDefault(); cfIsDrawing = true; cfCurrentPath = [getEventPos(cfCanvas, e)]; cfPaths.push({ color: cfColor, points: cfCurrentPath }); updateCFCanvas(); }, {passive: false});
-    cfCanvas.addEventListener('touchmove', e => { e.preventDefault(); if(cfIsDrawing) { cfCurrentPath.push(getEventPos(cfCanvas, e)); updateCFCanvas(); } }, {passive: false});
-    cfCanvas.addEventListener('touchend', e => { e.preventDefault(); handleCFEnd(); }, {passive: false});
-
-
-    // ==========================================
-    // GAME 3: FINGER MATH
-    // ==========================================
-    let mathLvl = 1, targetAns = 0;
-    const fingers = ['✊','☝️','✌️','3️⃣','4️⃣','🖐️'];
-
-    function startFingerMath() { generateMath(1); showView('view-math'); }
-
-    function generateMath(level) {
-        mathLvl = level;
-        let num1, num2, symbol = '+';
         
-        if(level === 1) { num1 = Math.floor(Math.random()*3)+1; num2 = Math.floor(Math.random()*(5-num1))+1; } 
-        else if (level === 2) { num1 = Math.floor(Math.random()*5)+1; num2 = Math.floor(Math.random()*5)+1; } 
-        else { num1 = Math.floor(Math.random()*4)+2; num2 = Math.floor(Math.random()*(num1-1))+1; symbol = '-'; }
-
-        targetAns = symbol === '+' ? num1 + num2 : num1 - num2;
-
-        let qStr = `${num1 <= 5 ? fingers[num1] : num1} ${symbol} ${num2 <= 5 ? fingers[num2] : num2} = ?`;
-        document.getElementById('mathQuestion').innerText = qStr;
-
-        let answers = [targetAns];
-        while(answers.length < 3) {
-            let fake = targetAns + Math.floor(Math.random()*5) - 2;
-            if(fake >= 0 && !answers.includes(fake)) answers.push(fake);
-        }
-        answers.sort(() => Math.random() - 0.5);
-
-        let ansDiv = document.getElementById('mathAnswers');
-        ansDiv.innerHTML = '';
-        answers.forEach(a => {
-            let btn = document.createElement('button');
-            btn.className = 'math-ans-btn';
-            btn.innerText = a <= 5 ? fingers[a] : a;
-            btn.onclick = () => checkMathAns(a, btn);
-            ansDiv.appendChild(btn);
-        });
+        // 3. Border
+        cfCtx.globalCompositeOperation = "source-over"; 
+        cfCtx.strokeStyle = "black";
+        cfCtx.lineWidth = 15; // Bolder border
+        cfCtx.strokeText(text, cfCanvas.width/2, letterCenterY);
     }
 
-    function checkMathAns(ans, btn) {
-        if(ans === targetAns) {
-            btn.style.borderColor = "green";
-            btn.style.background = "#baffc9";
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            addPoints(mathLvl * 10);
-            setTimeout(() => generateMath(mathLvl), 1500);
-        } else {
-            btn.style.borderColor = "red";
-            btn.style.background = "#ffb3ba";
-            playSound('pop');
-            setTimeout(() => { btn.style.borderColor = "#baffc9"; btn.style.background = "white"; }, 500);
+    function checkCfCompletion() {
+      if (cfTotalTargetPixels === 0 || isCelebrating) return;
+      const text = cfTarget.toString();
+      const fontName = "Noto Sans";
+      const fontSize = 200;
+
+      const scanCanvas = document.createElement('canvas');
+      scanCanvas.width = 140; scanCanvas.height = 140;
+      const scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
+      
+      let scaledFontSize = fontSize * (140 / cfCanvas.width);
+      scanCtx.textAlign = "center";
+      scanCtx.textBaseline = "middle";
+      scanCtx.font = `bold ${scaledFontSize}px '${fontName}', sans-serif`;
+      scanCtx.globalCompositeOperation = "source-over";
+      scanCtx.fillStyle = "white";
+      scanCtx.fillText(text, 70, 70);
+
+      scanCtx.globalCompositeOperation = "source-atop";
+      scanCtx.lineCap = "round";
+      scanCtx.lineJoin = "round";
+      scanCtx.lineWidth = 150 * (140 / cfCanvas.width); // Matches the massive marker
+
+      const scale = 140 / cfCanvas.width;
+
+      for (let path of cfPaths) {
+        if (path.points.length === 0) continue;
+        scanCtx.strokeStyle = path.color;
+        scanCtx.beginPath();
+        scanCtx.moveTo(path.points[0].x * scale, path.points[0].y * scale);
+        for (let i = 1; i < path.points.length; i++) {
+          scanCtx.lineTo(path.points[i].x * scale, path.points[i].y * scale);
+        }
+        scanCtx.stroke();
+      }
+
+      const imgData = scanCtx.getImageData(0, 0, 140, 140).data;
+      let filledPixels = 0;
+      for (let i = 0; i < imgData.length; i += 4) {
+        if (imgData[i+3] > 128 && (imgData[i] < 250 || imgData[i+1] < 250 || imgData[i+2] < 250)) {
+          filledPixels++;
+        }
+      }
+
+      cfProgress = Math.min(100, Math.round((filledPixels / cfTotalTargetPixels) * 100));
+      document.getElementById('cfProgress').textContent = cfProgress + "%";
+      checkCountFillWin();
+    }
+    
+    function checkCountFillWin() {
+        if (isCelebrating) return;
+        // Lowered threshold from 90% to 80% so kids win easily without needing perfect corners
+        if (cfProgress >= 80 && cfFilled === cfTarget) {
+            isCelebrating = true;
+            
+            addPoints(25); // +25 Points for Trace & Fill
+            
+            confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+            playTone(523, 'sine', 0.2, 0.4); setTimeout(() => playTone(659, 'sine', 0.2, 0.4), 150);
+            setTimeout(() => playTone(784, 'sine', 0.3, 0.4), 300); setTimeout(() => playTone(1046, 'sine', 0.5, 0.4), 450);
+            let u = new SpeechSynthesisUtterance("Great job!");
+            window.speechSynthesis.speak(u);
+            setTimeout(() => {
+                isCelebrating = false;
+                initCountFill();
+            }, 2500);
         }
     }
+
+    function cfGetPointerPos(e) {
+      const rect = cfCanvas.getBoundingClientRect();
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const scaleX = cfCanvas.width / rect.width;
+      const scaleY = cfCanvas.height / rect.height;
+      return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
+    }
+
+    function onCfStart(e) {
+      if(isCelebrating) return;
+      cfIsDrawing = true;
+      cfCurrentPath = [cfGetPointerPos(e)];
+      cfPaths.push({ color: currentColor, points: cfCurrentPath });
+      drawCfStencil();
+    }
+
+    function onCfMove(e) {
+      if (!cfIsDrawing || isCelebrating) return;
+      const pt = cfGetPointerPos(e);
+      cfCurrentPath.push(pt);
+      if (cfCurrentPath.length % 5 === 0) playTone(300 + (pt.y % 150), 'sine', 0.05, 0.05); 
+      drawCfStencil();
+    }
+
+    function onCfEnd() { 
+      if(!cfIsDrawing) return;
+      cfIsDrawing = false; 
+      checkCfCompletion();
+    }
+
+    cfCanvas.addEventListener('mousedown', onCfStart);
+    cfCanvas.addEventListener('mousemove', onCfMove);
+    cfCanvas.addEventListener('mouseup', onCfEnd);
+    cfCanvas.addEventListener('mouseout', onCfEnd);
+
+    cfCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); onCfStart(e); }, {passive: false});
+    cfCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); onCfMove(e); }, {passive: false});
+    cfCanvas.addEventListener('touchend', (e) => { e.preventDefault(); onCfEnd(); }, {passive: false});
 
   </script>
 </body>
