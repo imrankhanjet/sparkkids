@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>SparkKids Learning Academy</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@700&family=Noto+Sans+Arabic:wght@700&family=Noto+Nastaliq+Urdu:wght@700&family=Noto+Sans+Devanagari:wght@700&family=Noto+Sans+Telugu:wght@700&family=Noto+Sans+Tamil:wght@700&family=Noto+Sans+Bengali:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    body { 
+      text-align: center; 
+      font-family: 'Noto Sans', sans-serif; 
+      background-color: #f0f8ff; 
+      margin: 0; 
+      padding: 0; 
+      user-select: none;
+    }
+    
+    /* Top Navigation Bar */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background: white;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .home-btn { font-size: 20px; background: #bae1ff; padding: 5px 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; }
+    .score-board { font-size: 24px; font-weight: bold; color: #ffb3ba; display: flex; align-items: center; gap: 10px; }
+    .reset-btn { font-size: 14px; background: #ffdfba; padding: 5px 10px; border-radius: 8px; border: none; cursor: pointer; }
+
+    /* Views */
+    .view { display: none; padding: 20px 10px; }
+    .active-view { display: block; }
+
+    /* Welcome Screen */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 10px;
+    }
+    .menu-card {
+      background: white;
+      border: 5px solid #bae1ff;
+      border-radius: 20px;
+      padding: 30px 20px;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0px 8px 15px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+    .menu-card:active { transform: scale(0.95); }
+    .menu-card.pink { border-color: #ffb3ba; }
+    .menu-card.green { border-color: #baffc9; }
+
+    /* Game Layouts */
+    .toolbar { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; }
+    .canvas-layout { display: flex; justify-content: center; align-items: center; gap: 10px; width: 100%; max-width: 900px; margin: 0 auto; }
+    
+    canvas { 
+      border: 6px solid #ffb3ba; 
+      background-color: transparent; 
+      border-radius: 20px; 
+      cursor: crosshair; 
+      touch-action: none; 
+      box-shadow: 0px 5px 15px rgba(0,0,0,0.1); 
+      width: 100%; 
+      max-width: 600px; 
+      height: auto;
+    }
+    
+    .nav-btn { font-size: 30px; background: #bae1ff; border: none; border-radius: 50%; width: 50px; height: 50px; cursor: pointer; box-shadow: 0px 4px 8px rgba(0,0,0,0.2); flex-shrink: 0; }
+    .nav-btn:active { transform: scale(0.95); }
+
+    select, .action-btn { font-size: 16px; padding: 8px 12px; border-radius: 8px; border: 2px solid #bae1ff; cursor: pointer; font-weight: bold; background: white; }
+    .color-btn { width: 35px; height: 35px; border-radius: 50%; display: inline-block; cursor: pointer; border: 3px solid white; box-shadow: 0px 4px 6px rgba(0,0,0,0.2); }
+
+    /* Footer for Tracing */
+    .footer-display {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      margin-top: 15px;
+      font-size: 50px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    /* Count & Fill Grid */
+    .cf-layout { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; max-width: 600px; margin: 0 auto;}
+    .cf-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; }
+    .cf-obj { font-size: 40px; opacity: 0.4; cursor: pointer; transition: 0.2s; user-select: none; }
+    .cf-obj.filled { opacity: 1; transform: scale(1.2); }
+
+    /* Finger Math */
+    .math-q { font-size: 60px; font-weight: bold; margin: 40px 0; }
+    .math-ans-btn { font-size: 40px; padding: 10px 30px; background: white; border: 4px solid #baffc9; border-radius: 15px; cursor: pointer; margin: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation & Score -->
+  <div class="top-bar">
+    <button class="home-btn" onclick="showView('view-menu')">🏠 Home</button>
+    <div class="score-board">
+        <span id="scoreDisplay">⭐ 0</span>
+        <button class="reset-btn" onclick="resetPoints()">Reset</button>
+    </div>
+  </div>
+
+  <!-- VIEW 1: Main Menu -->
+  <div id="view-menu" class="view active-view">
+    <h1>🌟 SparkKids Academy 🌟</h1>
+    <p>Choose a game to play!</p>
+    <div class="menu-grid">
+      <div class="menu-card" onclick="startTracing('english')">🔤 Trace Alphabets<br><span style="font-size:14px; font-weight:normal;">English, Hindi, Arabic & more!</span></div>
+      <div class="menu-card pink" onclick="startTracing('sight_words')">🍎 Trace Words<br><span style="font-size:14px; font-weight:normal;">Vocabulary & Shapes</span></div>
+      <div class="menu-card green" onclick="startTracing('numbers')">🔢 Trace Numbers<br><span style="font-size:14px; font-weight:normal;">Learn 1 to 100</span></div>
+      <div class="menu-card pink" onclick="startCountFill()">🎈 Count & Fill<br><span style="font-size:14px; font-weight:normal;">Trace & Match Quantities</span></div>
+      <div class="menu-card" onclick="startFingerMath()">✌️ Finger Math<br><span style="font-size:14px; font-weight:normal;">Add & Subtract</span></div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: Tracing Game -->
+  <div id="view-tracing" class="view">
+    <div class="toolbar">
+       <select id="languageSelect" onchange="changeTracingLang()">
+          <option value="english">English (A-Z)</option>
+          <option value="lowercase">Lower Case (a-z)</option>
+          <option value="sight_words">Sight Words</option>
+          <option value="hindi">Hindi</option>
+          <option value="telugu">Telugu</option>
+          <option value="tamil">Tamil</option>
+          <option value="bengali">Bengali</option>
+          <option value="arabic">Arabic</option>
+          <option value="urdu">Urdu</option>
+          <option value="numbers">Numbers (1-100)</option>
+          <option value="shapes">Shapes</option>
+       </select>
+       <button class="action-btn" style="background: #ffd6a5;" onclick="speakAloud()">🔊 Speak</button>
+       <button class="action-btn" style="background: #ffb3ba;" onclick="clearTracing()">Erase</button>
+    </div>
+
+    <div class="toolbar">
+       <button class="color-btn" style="background:red;" onclick="tracingColor='red'"></button>
+       <button class="color-btn" style="background:orange;" onclick="tracingColor='orange'"></button>
+       <button class="color-btn" style="background:yellow;" onclick="tracingColor='yellow'"></button>
+       <button class="color-btn" style="background:green;" onclick="tracingColor='green'"></button>
+       <button class="color-btn" style="background:blue;" onclick="tracingColor='blue'"></button>
+       <button class="color-btn" style="background:purple;" onclick="tracingColor='purple'"></button>
+       <button class="color-btn" style="background:black;" onclick="tracingColor='black'"></button>
+    </div>
+
+    <div class="canvas-layout">
+       <button class="nav-btn" onclick="prevTracing()">◀</button>
+       <canvas id="tracingCanvas" width="800" height="500"></canvas>
+       <button class="nav-btn" onclick="nextTracing()">▶</button>
+    </div>
+    
+    <div id="tracingFooter" class="footer-display"></div>
+  </div>
+
+  <!-- VIEW 3: Count & Fill Game -->
+  <div id="view-cf" class="view">
+    <h2>Trace the number, then tap the shapes to match!</h2>
+    <div class="canvas-layout">
+       <button class="nav-btn" onclick="prevCF()">◀</button>
+       <div class="cf-layout">
+           <canvas id="cfCanvas" width="400" height="400"></canvas>
+           <div id="cfObjects" class="cf-grid"></div>
+       </div>
+       <button class="nav-btn" onclick="nextCF()">▶</button>
+    </div>
+  </div>
+
+  <!-- VIEW 4: Finger Math -->
+  <div id="view-math" class="view">
+    <h2>Solve the Finger Math!</h2>
+    <div class="toolbar">
+        <button class="action-btn" onclick="generateMath(1)">Level 1 (Add to 5)</button>
+        <button class="action-btn" onclick="generateMath(2)">Level 2 (Add to 10)</button>
+        <button class="action-btn" onclick="generateMath(3)">Level 3 (Subtract)</button>
+    </div>
+    <div id="mathQuestion" class="math-q"></div>
+    <div id="mathAnswers" class="toolbar"></div>
+  </div>
+
+  <script>
+    // --- GLOBAL DATA & POINTS ---
+    let points = parseInt(localStorage.getItem("sparkKidsPoints")) || 0;
+    document.getElementById('scoreDisplay').innerText = "⭐ " + points;
+
+    function addPoints(amt) {
+        points += amt;
+        localStorage.setItem("sparkKidsPoints", points);
+        document.getElementById('scoreDisplay').innerText = "⭐ " + points;
+        playSound('win');
+    }
+
+    function resetPoints() {
+        if(confirm("Are you sure you want to reset your stars?")) {
+            points = 0;
+            localStorage.setItem("sparkKidsPoints", points);
+            document.getElementById('scoreDisplay').innerText = "⭐ 0";
+        }
+    }
+
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+        document.getElementById(viewId).classList.add('active-view');
+        playSound('pop');
+    }
+
+    // --- SOUND EFFECTS ---
+    function playSound(type) {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const audioCtx = new AudioContext();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if(type === 'win') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); 
+                osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.2); 
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+            } else if (type === 'pop') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+                gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            }
+        } catch(e) {}
+    }
+
+    // --- MULTILINGUAL DICTIONARY ---
+    const libraries = {
+        english: [
+            { l: 'A', w: 'Apple', e: '🍎' }, { l: 'B', w: 'Ball', e: '⚽' }, { l: 'C', w: 'Cat', e: '🐱' },
+            { l: 'D', w: 'Dog', e: '🐶' }, { l: 'E', w: 'Elephant', e: '🐘' }, { l: 'F', w: 'Fish', e: '🐟' },
+            { l: 'G', w: 'Grapes', e: '🍇' }, { l: 'H', w: 'Hat', e: '🎩' }, { l: 'I', w: 'Ice Cream', e: '🍦' },
+            { l: 'J', w: 'Juice', e: '🧃' }, { l: 'K', w: 'Kite', e: '🪁' }, { l: 'L', w: 'Lion', e: '🦁' },
+            { l: 'M', w: 'Monkey', e: '🐒' }, { l: 'N', w: 'Nest', e: '🪺' }, { l: 'O', w: 'Orange', e: '🍊' },
+            { l: 'P', w: 'Pig', e: '🐷' }, { l: 'Q', w: 'Queen', e: '👑' }, { l: 'R', w: 'Rabbit', e: '🐰' },
+            { l: 'S', w: 'Sun', e: '☀️' }, { l: 'T', w: 'Tree', e: '🌳' }, { l: 'U', w: 'Umbrella', e: '☂️' },
+            { l: 'V', w: 'Van', e: '🚐' }, { l: 'W', w: 'Watermelon', e: '🍉' }, { l: 'X', w: 'Xylophone', e: '🎹' },
+            { l: 'Y', w: 'Yak', e: '🐂' }, { l: 'Z', w: 'Zebra', e: '🦓' }
+        ],
+        lowercase: [
+            { l: 'a', w: 'Apple', e: '🍎' }, { l: 'b', w: 'Ball', e: '⚽' }, { l: 'c', w: 'Cat', e: '🐱' },
+            { l: 'd', w: 'Dog', e: '🐶' }, { l: 'e', w: 'Elephant', e: '🐘' }, { l: 'f', w: 'Fish', e: '🐟' }
+        ],
+        hindi: [
+            { l: 'अ', w: 'अनार', e: '🍎' }, { l: 'आ', w: 'आम', e: '🥭' }, { l: 'इ', w: 'इंजन', e: '🚂' },
+            { l: 'ई', w: 'ईख', e: '🎋' }, { l: 'उ', w: 'उल्लू', e: '🦉' }, { l: 'ऊ', w: 'ऊन', e: '🧶' }
+        ],
+        telugu: [
+            { l: 'అ', w: 'అరటి', e: '🍌' }, { l: 'ఆ', w: 'ఆవు', e: '🐄' }, { l: 'ఇ', w: 'ఇల్లు', e: '🏠' },
+            { l: 'ఈ', w: 'ఈక', e: '🪶' }, { l: 'ఉ', w: 'ఉడుత', e: '🐿️' }, { l: 'ఊ', w: 'ఊయల', e: '🛝' }
+        ],
+        tamil: [
+            { l: 'அ', w: 'அம்மா', e: '👩' }, { l: 'ஆ', w: 'ஆடு', e: '🐐' }, { l: 'இ', w: 'இலை', e: '🍃' },
+            { l: 'ஈ', w: 'ஈ', e: '🪰' }, { l: 'உ', w: 'உப்பு', e: '🧂' }, { l: 'ஊ', w: 'ஊஞ்சல்', e: '🛝' }
+        ],
+        bengali: [
+            { l: 'অ', w: 'অজগর', e: '🐍' }, { l: 'আ', w: 'আম', e: '🥭' }, { l: 'ই', w: 'ইঁদুর', e: '🐁' },
+            { l: 'ঈ', w: 'ঈগল', e: '🦅' }, { l: 'উ', w: 'উট', e: '🐪' }, { l: 'ঊ', w: 'ঊষা', e: '🌅' }
+        ],
+        arabic: [
+            { l: 'أ', w: 'أسد', e: '🦁' }, { l: 'ب', w: 'بطة', e: '🦆' }, { l: 'ت', w: 'تفاحة', e: '🍎' },
+            { l: 'ث', w: 'ثعلب', e: '🦊' }, { l: 'ج', w: 'جمل', e: '🐪' }, { l: 'ح', w: 'حصان', e: '🐎' }
+        ],
+        urdu: [
+            { l: 'ا', w: 'انار', e: '🍎' }, { l: 'ب', w: 'بلی', e: '🐱' }, { l: 'پ', w: 'پتنگ', e: '🪁' },
+            { l: 'ت', w: 'تتلی', e: '🦋' }, { l: 'ٹ', w: 'ٹماٹر', e: '🍅' }, { l: 'ث', w: 'ثمر', e: '🍇' }
+        ],
+        sight_words: [
+            { l: 'River', w: 'River', e: '🏞️' }, { l: 'Stars', w: 'Stars', e: '✨' },
+            { l: 'Ears', w: 'Ears', e: '👂' }, { l: 'Lips', w: 'Lips', e: '👄' }
+        ],
+        shapes: [
+            { l: '●', w: 'Circle', e: '🔴' }, { l: '■', w: 'Square', e: '🟩' },
+            { l: '▲', w: 'Triangle', e: '🔺' }, { l: '★', w: 'Star', e: '⭐' }, { l: '❤', w: 'Heart', e: '💖' }
+        ],
+        numbers: []
+    };
+
+    // Auto-Generate 1 to 100
+    for(let i=1; i<=100; i++) {
+        libraries.numbers.push({ l: i.toString(), w: i.toString(), e: '🍎' });
+    }
+
+    // NATIVE TTS ENGINE
+    function speakAloud() {
+        let cat = document.getElementById('languageSelect').value;
+        let item = libraries[cat][tIndex];
+        let textToSpeak = item.w ? `${item.l}, ${item.w}` : item.l;
+
+        window.speechSynthesis.cancel(); 
+        let utterance = new SpeechSynthesisUtterance(textToSpeak);
+        
+        let targetLang = 'en-US';
+        if(cat === 'hindi') targetLang = 'hi-IN';
+        else if(cat === 'telugu') targetLang = 'te-IN';
+        else if(cat === 'tamil') targetLang = 'ta-IN';
+        else if(cat === 'bengali') targetLang = 'bn-IN';
+        else if(cat === 'arabic') targetLang = 'ar-SA';
+        else if(cat === 'urdu') targetLang = 'ur-PK'; 
+        
+        utterance.lang = targetLang;
+        utterance.rate = 0.8; 
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // --- CORE CANVAS HELPERS ---
+    function getEventPos(canvasEl, e) {
+        const rect = canvasEl.getBoundingClientRect();
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+        const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+        return {
+            x: (clientX - rect.left) * (canvasEl.width / rect.width),
+            y: (clientY - rect.top) * (canvasEl.height / rect.height)
+        };
+    }
+
+    // THE FIX: Only counts opaque pixels that have been covered by non-white ink
+    function checkTracingProgress(canvasEl, ctx, threshold, successCallback) {
+        const imgData = ctx.getImageData(0, 0, canvasEl.width, canvasEl.height).data;
+        let total = 0, filled = 0;
+        for (let i = 0; i < imgData.length; i += 4) {
+            if (imgData[i+3] > 50) { // Outline pixel exists
+                total++;
+                // If it is NOT white (ink covers it)
+                if (imgData[i] < 200 || imgData[i+1] < 200 || imgData[i+2] < 200) {
+                    filled++;
+                }
+            }
+        }
+        if (total > 0 && (filled / total) > threshold) {
+            successCallback();
+        }
+    }
+
+
+    // ==========================================
+    // GAME 1: TRACING GAME
+    // ==========================================
+    const tCanvas = document.getElementById('tracingCanvas');
+    const tCtx = tCanvas.getContext('2d');
+    let tIsDrawing = false, tColor = 'red', tIndex = 0, tPaths = [], tCurrentPath = [], tDone = false;
+
+    function startTracing(cat) {
+        document.getElementById('languageSelect').value = cat;
+        changeTracingLang();
+        showView('view-tracing');
+    }
+
+    function changeTracingLang() {
+        tIndex = 0; 
+        tPaths = []; 
+        tDone = false;
+        renderTracing();
+    }
+
+    function nextTracing() {
+        let cat = document.getElementById('languageSelect').value;
+        tIndex++;
+        if (tIndex >= libraries[cat].length) tIndex = 0;
+        tPaths = []; tDone = false;
+        renderTracing();
+        speakAloud();
+    }
+
+    function prevTracing() {
+        let cat = document.getElementById('languageSelect').value;
+        tIndex--;
+        if (tIndex < 0) tIndex = libraries[cat].length - 1;
+        tPaths = []; tDone = false;
+        renderTracing();
+        speakAloud();
+    }
+
+    function clearTracing() { tPaths = []; tDone = false; renderTracing(); }
+
+    function renderTracing() {
+        let cat = document.getElementById('languageSelect').value;
+        const item = libraries[cat][tIndex];
+        let text = item.l;
+
+        tCtx.clearRect(0, 0, tCanvas.width, tCanvas.height);
+        
+        // Font setup
+        let fontName = "Noto Sans";
+        if (cat === 'hindi') fontName = "Noto Sans Devanagari";
+        else if (cat === 'telugu') fontName = "Noto Sans Telugu";
+        else if (cat === 'tamil') fontName = "Noto Sans Tamil";
+        else if (cat === 'bengali') fontName = "Noto Sans Bengali";
+        else if (cat === 'arabic') fontName = "Noto Sans Arabic";
+        else if (cat === 'urdu') fontName = "Noto Nastaliq Urdu";
+
+        let fontSize = text.length > 2 ? 150 : 300;
+        
+        tCtx.globalCompositeOperation = "source-over"; 
+        tCtx.textAlign = "center";
+        tCtx.textBaseline = "middle";
+        tCtx.font = `bold ${fontSize}px '${fontName}', sans-serif`; 
+        tCtx.fillStyle = "white"; 
+        tCtx.fillText(text, tCanvas.width/2, tCanvas.height/2);
+
+        // Draw Ink Inside
+        tCtx.globalCompositeOperation = "source-atop";
+        tCtx.lineCap = "round";
+        tCtx.lineJoin = "round";
+        tCtx.lineWidth = 150; // MASSIVE MARKER
+
+        for (let path of tPaths) {
+            if (path.points.length === 0) continue;
+            tCtx.strokeStyle = path.color;
+            tCtx.beginPath();
+            tCtx.moveTo(path.points[0].x, path.points[0].y);
+            for (let i = 1; i < path.points.length; i++) tCtx.lineTo(path.points[i].x, path.points[i].y);
+            tCtx.stroke();
+        }
+
+        // Draw Black Border
+        tCtx.globalCompositeOperation = "source-over"; 
+        tCtx.strokeStyle = "black";
+        tCtx.lineWidth = text.length > 2 ? 5 : 15;
+        tCtx.strokeText(text, tCanvas.width/2, tCanvas.height/2);
+
+        // Update Footer
+        let footer = document.getElementById('tracingFooter');
+        if (item.e && item.w) footer.innerHTML = `<span>${item.e}</span> <span>${item.w}</span>`;
+        else footer.innerHTML = '';
+    }
+
+    function handleTracingEnd() {
+        tIsDrawing = false;
+        if (!tDone) {
+            checkTracingProgress(tCanvas, tCtx, 0.85, () => {
+                tDone = true;
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                addPoints(document.getElementById('languageSelect').value === 'sight_words' ? 20 : 10);
+                setTimeout(nextTracing, 1500);
+            });
+        }
+    }
+
+    tCanvas.addEventListener('mousedown', e => { tIsDrawing = true; tCurrentPath = [getEventPos(tCanvas, e)]; tPaths.push({ color: tracingColor, points: tCurrentPath }); renderTracing(); });
+    tCanvas.addEventListener('mousemove', e => { if(tIsDrawing) { tCurrentPath.push(getEventPos(tCanvas, e)); renderTracing(); } });
+    tCanvas.addEventListener('mouseup', handleTracingEnd);
+    tCanvas.addEventListener('mouseout', handleTracingEnd);
+    tCanvas.addEventListener('touchstart', e => { e.preventDefault(); tIsDrawing = true; tCurrentPath = [getEventPos(tCanvas, e)]; tPaths.push({ color: tracingColor, points: tCurrentPath }); renderTracing(); }, {passive: false});
+    tCanvas.addEventListener('touchmove', e => { e.preventDefault(); if(tIsDrawing) { tCurrentPath.push(getEventPos(tCanvas, e)); renderTracing(); } }, {passive: false});
+    tCanvas.addEventListener('touchend', e => { e.preventDefault(); handleTracingEnd(); }, {passive: false});
+
+
+    // ==========================================
+    // GAME 2: COUNT & FILL
+    // ==========================================
+    const cfCanvas = document.getElementById('cfCanvas');
+    const cfCtx = cfCanvas.getContext('2d');
+    let cfIsDrawing = false, cfColor = 'blue', cfIndex = 1, cfPaths = [], cfCurrentPath = [], cfDoneTrace = false, cfTapped = 0;
+
+    function startCountFill() {
+        cfIndex = 1;
+        renderCF();
+        showView('view-cf');
+    }
+
+    function nextCF() { cfIndex++; if(cfIndex > 10) cfIndex = 1; renderCF(); }
+    function prevCF() { cfIndex--; if(cfIndex < 1) cfIndex = 10; renderCF(); }
+
+    function renderCF() {
+        cfPaths = []; cfDoneTrace = false; cfTapped = 0;
+        
+        // Render Canvas
+        cfCtx.clearRect(0, 0, cfCanvas.width, cfCanvas.height);
+        cfCtx.globalCompositeOperation = "source-over"; 
+        cfCtx.textAlign = "center"; cfCtx.textBaseline = "middle";
+        cfCtx.font = "bold 300px 'Noto Sans', sans-serif"; 
+        cfCtx.fillStyle = "white"; 
+        cfCtx.fillText(cfIndex.toString(), cfCanvas.width/2, cfCanvas.height/2);
+        cfCtx.strokeStyle = "black"; cfCtx.lineWidth = 15;
+        cfCtx.strokeText(cfIndex.toString(), cfCanvas.width/2, cfCanvas.height/2);
+
+        // Render Objects
+        const grid = document.getElementById('cfObjects');
+        grid.innerHTML = '';
+        for(let i=0; i<10; i++) {
+            let el = document.createElement('div');
+            el.className = 'cf-obj';
+            el.innerText = '🍎';
+            el.onclick = () => {
+                if(!el.classList.contains('filled')) {
+                    el.classList.add('filled');
+                    playSound('pop');
+                    cfTapped++;
+                    checkCFWin();
+                }
+            };
+            grid.appendChild(el);
+        }
+    }
+
+    function updateCFCanvas() {
+        cfCtx.clearRect(0, 0, cfCanvas.width, cfCanvas.height);
+        cfCtx.globalCompositeOperation = "source-over"; 
+        cfCtx.textAlign = "center"; cfCtx.textBaseline = "middle";
+        cfCtx.font = "bold 300px 'Noto Sans', sans-serif"; 
+        cfCtx.fillStyle = "white"; 
+        cfCtx.fillText(cfIndex.toString(), cfCanvas.width/2, cfCanvas.height/2);
+
+        cfCtx.globalCompositeOperation = "source-atop";
+        cfCtx.lineCap = "round"; cfCtx.lineJoin = "round"; cfCtx.lineWidth = 150;
+        for (let path of cfPaths) {
+            if (path.points.length === 0) continue;
+            cfCtx.strokeStyle = path.color;
+            cfCtx.beginPath();
+            cfCtx.moveTo(path.points[0].x, path.points[0].y);
+            for (let i = 1; i < path.points.length; i++) cfCtx.lineTo(path.points[i].x, path.points[i].y);
+            cfCtx.stroke();
+        }
+
+        cfCtx.globalCompositeOperation = "source-over"; 
+        cfCtx.strokeStyle = "black"; cfCtx.lineWidth = 15;
+        cfCtx.strokeText(cfIndex.toString(), cfCanvas.width/2, cfCanvas.height/2);
+    }
+
+    function checkCFWin() {
+        if (cfDoneTrace && cfTapped === cfIndex) {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            addPoints(25);
+            setTimeout(nextCF, 1500);
+        }
+    }
+
+    function handleCFEnd() {
+        cfIsDrawing = false;
+        if (!cfDoneTrace) {
+            checkTracingProgress(cfCanvas, cfCtx, 0.80, () => {
+                cfDoneTrace = true;
+                playSound('win');
+                checkCFWin();
+            });
+        }
+    }
+
+    cfCanvas.addEventListener('mousedown', e => { cfIsDrawing = true; cfCurrentPath = [getEventPos(cfCanvas, e)]; cfPaths.push({ color: cfColor, points: cfCurrentPath }); updateCFCanvas(); });
+    cfCanvas.addEventListener('mousemove', e => { if(cfIsDrawing) { cfCurrentPath.push(getEventPos(cfCanvas, e)); updateCFCanvas(); } });
+    cfCanvas.addEventListener('mouseup', handleCFEnd);
+    cfCanvas.addEventListener('mouseout', handleCFEnd);
+    cfCanvas.addEventListener('touchstart', e => { e.preventDefault(); cfIsDrawing = true; cfCurrentPath = [getEventPos(cfCanvas, e)]; cfPaths.push({ color: cfColor, points: cfCurrentPath }); updateCFCanvas(); }, {passive: false});
+    cfCanvas.addEventListener('touchmove', e => { e.preventDefault(); if(cfIsDrawing) { cfCurrentPath.push(getEventPos(cfCanvas, e)); updateCFCanvas(); } }, {passive: false});
+    cfCanvas.addEventListener('touchend', e => { e.preventDefault(); handleCFEnd(); }, {passive: false});
+
+
+    // ==========================================
+    // GAME 3: FINGER MATH
+    // ==========================================
+    let mathLvl = 1, targetAns = 0;
+    const fingers = ['✊','☝️','✌️','3️⃣','4️⃣','🖐️'];
+
+    function startFingerMath() { generateMath(1); showView('view-math'); }
+
+    function generateMath(level) {
+        mathLvl = level;
+        let num1, num2, symbol = '+';
+        
+        if(level === 1) { num1 = Math.floor(Math.random()*3)+1; num2 = Math.floor(Math.random()*(5-num1))+1; } 
+        else if (level === 2) { num1 = Math.floor(Math.random()*5)+1; num2 = Math.floor(Math.random()*5)+1; } 
+        else { num1 = Math.floor(Math.random()*4)+2; num2 = Math.floor(Math.random()*(num1-1))+1; symbol = '-'; }
+
+        targetAns = symbol === '+' ? num1 + num2 : num1 - num2;
+
+        let qStr = `${num1 <= 5 ? fingers[num1] : num1} ${symbol} ${num2 <= 5 ? fingers[num2] : num2} = ?`;
+        document.getElementById('mathQuestion').innerText = qStr;
+
+        let answers = [targetAns];
+        while(answers.length < 3) {
+            let fake = targetAns + Math.floor(Math.random()*5) - 2;
+            if(fake >= 0 && !answers.includes(fake)) answers.push(fake);
+        }
+        answers.sort(() => Math.random() - 0.5);
+
+        let ansDiv = document.getElementById('mathAnswers');
+        ansDiv.innerHTML = '';
+        answers.forEach(a => {
+            let btn = document.createElement('button');
+            btn.className = 'math-ans-btn';
+            btn.innerText = a <= 5 ? fingers[a] : a;
+            btn.onclick = () => checkMathAns(a, btn);
+            ansDiv.appendChild(btn);
+        });
+    }
+
+    function checkMathAns(ans, btn) {
+        if(ans === targetAns) {
+            btn.style.borderColor = "green";
+            btn.style.background = "#baffc9";
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            addPoints(mathLvl * 10);
+            setTimeout(() => generateMath(mathLvl), 1500);
+        } else {
+            btn.style.borderColor = "red";
+            btn.style.background = "#ffb3ba";
+            playSound('pop');
+            setTimeout(() => { btn.style.borderColor = "#baffc9"; btn.style.background = "white"; }, 500);
+        }
+    }
+
+  </script>
+</body>
+</html>
