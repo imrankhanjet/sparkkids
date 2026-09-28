@@ -352,7 +352,7 @@
   </div>
 
   <script>
-    // --- MASSIVE DICTIONARY (Numbers 1-30 & Full Vocabularies) ---
+    // --- MASSIVE DICTIONARY (Numbers 1-100 & Full Vocabularies) ---
     const libraries = {
       english: [
         { l: 'A', w: 'Apple', e: '🍎' }, { l: 'B', w: 'Ball', e: '⚽' }, { l: 'C', w: 'Cat', e: '🐱' },
@@ -381,7 +381,7 @@
         { l: 'ई', w: 'ईख', e: '🎋' }, { l: 'उ', w: 'उल्लू', e: '🦉' }, { l: 'ऊ', w: 'ऊन', e: '🧶' },
         { l: 'ऋ', w: 'ऋषि', e: '🧘' }, { l: 'ए', w: 'एक', e: '1️⃣' }, { l: 'ऐ', w: 'ऐनक', e: '👓' },
         { l: 'ओ', w: 'ओखली', e: '🥣' }, { l: 'औ', w: 'औरत', e: '👩' },
-        { l: 'क', w: 'कमल', e: '🪷' }, { l: 'خ', w: 'खरगोश', e: '🐰' }, { l: 'ग', w: 'गमला', e: '🪴' }
+        { l: 'क', w: 'कमल', e: '🪷' }, { l: 'ख', w: 'खरगोश', e: '🐰' }, { l: 'ग', w: 'गमला', e: '🪴' }
       ],
       telugu: [
         { l: 'అ', w: 'అరటి', e: '🍌' }, { l: 'ఆ', w: 'ఆవు', e: '🐄' }, { l: 'ఇ', w: 'ఇల్లు', e: '🏠' },
@@ -450,7 +450,7 @@
     let currentCategory = 'english';
     let currentIndex = 0;
     
-    // NEW: Global Score Tracking
+    // Global Score Tracking
     let globalScore = 0;
     
     // Audio Context for Upbeat Synths
@@ -459,6 +459,7 @@
     let musicInterval = null;
     let speechInterval = null;
     let isCelebrating = false;
+    let currentCloudAudio = null; // Track current Gemini audio to prevent overlaps
 
     // Tracing Variables
     const canvas = document.getElementById('kidsCanvas');
@@ -512,6 +513,10 @@
         document.getElementById('modeCountFill').classList.add('hidden');
         document.getElementById('tracingModeContainer').style.display = 'none';
         
+        if (currentCloudAudio) {
+            currentCloudAudio.pause();
+            currentCloudAudio.currentTime = 0;
+        }
         window.speechSynthesis.cancel();
         clearTimeout(musicInterval);
         clearInterval(speechInterval);
@@ -590,6 +595,7 @@
 
     function toggleMusic() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       isMusicPlaying = !isMusicPlaying;
       const btn = document.getElementById('btnMusic');
       if (isMusicPlaying) {
@@ -675,11 +681,14 @@
         return bytes.buffer;
     }
 
-    async function fetchHighQualityAudio(text) {
-        if (ttsCache[text]) return ttsCache[text];
+    async function fetchHighQualityAudio(text, langName) {
+        const cacheKey = `${langName}_${text}`;
+        if (ttsCache[cacheKey]) return ttsCache[cacheKey];
         try {
+            // Instruct Gemini to use an enthusiastic and playful tone in the target language
+            const instruction = `Say playfully and enthusiastically in ${langName}: ${text}`;
             const payload = {
-                contents: [{ parts: [{ text: "Say cheerfully: " + text }] }],
+                contents: [{ parts: [{ text: instruction }] }],
                 generationConfig: {
                     responseModalities: ["AUDIO"],
                     speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Puck" } } }
@@ -704,7 +713,7 @@
                 const pcm16 = new Int16Array(pcmData);
                 const wavBlob = pcmToWav(pcm16, sampleRate);
                 const audioUrl = URL.createObjectURL(wavBlob);
-                ttsCache[text] = audioUrl;
+                ttsCache[cacheKey] = audioUrl;
                 return audioUrl;
             }
         } catch (e) {
@@ -725,7 +734,12 @@
     }
 
     async function speakAloud() {
+      if (currentCloudAudio) {
+          currentCloudAudio.pause();
+          currentCloudAudio.currentTime = 0;
+      }
       window.speechSynthesis.cancel();
+      
       let item = libraries[currentCategory][currentIndex];
       let textToSpeak = "";
 
@@ -743,17 +757,25 @@
       } else {
           textToSpeak = item.w || item.l || item;
       }
+      
+      // Determine Language Name for AI Prompt
+      let langName = "English";
+      if (currentCategory === 'hindi') langName = "Hindi";
+      if (currentCategory === 'telugu') langName = "Telugu";
+      if (currentCategory === 'tamil') langName = "Tamil";
+      if (currentCategory === 'bengali') langName = "Bengali";
+      if (currentCategory === 'arabic') langName = "Arabic";
+      if (currentCategory === 'urdu') langName = "Urdu";
 
-      // Trigger high quality studio audio for English Alphabets
-      if ((currentCategory === 'english' || currentCategory === 'lowercase') && tracingMode === 'letter' && item.w) {
-          const hqAudio = await fetchHighQualityAudio(textToSpeak);
-          if (hqAudio) {
-              const audio = new Audio(hqAudio);
-              audio.play();
-              return;
-          }
+      // Trigger high quality studio audio for ALL Languages to ensure it's never muted!
+      const hqAudio = await fetchHighQualityAudio(textToSpeak, langName);
+      if (hqAudio) {
+          currentCloudAudio = new Audio(hqAudio);
+          currentCloudAudio.play().catch(e => console.log("Audio play prevented:", e));
+          return;
       }
 
+      // Fallback to Native Speech Synthesis if Cloud Fails
       let utterance = new SpeechSynthesisUtterance(textToSpeak);
       
       let targetLang = 'en-US';
@@ -768,7 +790,6 @@
       utterance.pitch = 1.5; // High, happy singing pitch!
       utterance.rate = 0.65; // Slowed down for kids
       
-      // Force native voice if available, otherwise it falls back safely to default reading unicode
       let voices = window.speechSynthesis.getVoices();
       let bestVoice = voices.find(v => v.lang.startsWith(targetLang.split('-')[0]));
       if (bestVoice) utterance.voice = bestVoice;
@@ -787,7 +808,6 @@
     }
 
     function updateTracingModeUI() {
-        // Dynamically rename the tabs to make Number tracing clearer!
         const isNum = currentCategory === 'numbers';
         document.getElementById('tabLetter').innerHTML = isNum ? '🔤 Digit' : '🔤 Letter';
         document.getElementById('tabWord').innerHTML = isNum ? '🔢 Number Name' : '🍎 Word';
@@ -844,6 +864,9 @@
       if(isCelebrating) return;
       isCelebrating = true;
       clearInterval(speechInterval);
+      if (currentCloudAudio) {
+          currentCloudAudio.pause();
+      }
       window.speechSynthesis.cancel();
       
       // Award Points based on tracing mode
@@ -889,7 +912,9 @@
       
       scanCtx.fillStyle = "black";
       scanCtx.fillRect(0, 0, 200, 140);
-      scanCtx.fillStyle = "white"; 
+      
+      // FIX: Draw text in pure Red to perfectly track shape against black background
+      scanCtx.fillStyle = "red"; 
       scanCtx.textAlign = "center";
       scanCtx.textBaseline = "middle";
       
@@ -901,6 +926,7 @@
       const imgData = scanCtx.getImageData(0, 0, 200, 140).data;
       totalTargetPixels = 0;
       for (let i = 0; i < imgData.length; i += 4) {
+        // Red channel check ensures we ONLY count the actual text, ignoring background entirely
         if (imgData[i] > 128) totalTargetPixels++;
       }
     }
@@ -918,24 +944,28 @@
       scanCtx.textBaseline = "middle";
       scanCtx.font = `bold ${scaledFontSize}px '${fontName}', sans-serif`;
       
+      // 1. Draw Target Text in Red
       scanCtx.globalCompositeOperation = "source-over";
-      scanCtx.fillStyle = "white";
+      scanCtx.fillStyle = "black";
+      scanCtx.fillRect(0, 0, 200, 140);
+      scanCtx.fillStyle = "red";
       scanCtx.fillText(text, 100, 70);
 
+      // 2. Overlay User Ink in Blue
       scanCtx.globalCompositeOperation = "source-atop";
       scanCtx.lineCap = "round";
       scanCtx.lineJoin = "round";
       
-      // Dynamic Marker size for scanner
       let markerSize = Math.max(40, fontSize * 0.4);
-      scanCtx.lineWidth = markerSize * (200 / canvas.width);
+      scanCtx.lineWidth = markerSize * (100 / canvas.width);
 
       const scaleX = 200 / canvas.width;
       const scaleY = 140 / canvas.height;
 
+      // Force drawing ink in blue to distinguish from the red target text
+      scanCtx.strokeStyle = "blue"; 
       for (let path of paths) {
         if (path.points.length === 0) continue;
-        scanCtx.strokeStyle = path.color;
         scanCtx.beginPath();
         scanCtx.moveTo(path.points[0].x * scaleX, path.points[0].y * scaleY);
         for (let i = 1; i < path.points.length; i++) {
@@ -947,8 +977,9 @@
       const imgData = scanCtx.getImageData(0, 0, 200, 140).data;
       let filledPixels = 0;
       for (let i = 0; i < imgData.length; i += 4) {
-        // If pixel is NOT white/transparent, it's user ink!
-        if (imgData[i+3] > 128 && (imgData[i] < 250 || imgData[i+1] < 250 || imgData[i+2] < 250)) {
+        // Because of source-atop, the blue ink perfectly replaces the red text. 
+        // We count how many pixels are predominantly Blue.
+        if (imgData[i+2] > 128) {
           filledPixels++;
         }
       }
@@ -1036,7 +1067,7 @@
           
           footer.appendChild(title);
           footer.appendChild(grid);
-          twemoji.parse(grid, { folder: 'svg', ext: '.svg' });
+          try { twemoji.parse(grid, { folder: 'svg', ext: '.svg' }); } catch(e) {}
           
       } else {
           footer.innerHTML = '<div id="footerPic" class="w-1/3 flex justify-center items-center"></div><div id="footerWord" class="w-2/3 flex justify-center items-center text-3xl md:text-5xl font-extrabold text-indigo-900 text-center"></div>';
@@ -1052,15 +1083,17 @@
             picDiv.innerHTML = itemToDraw.e;
             wordDiv.textContent = itemToDraw.w;
             wordDiv.style.fontFamily = `'${fontName}', sans-serif`;
-            twemoji.parse(picDiv, { folder: 'svg', ext: '.svg' });
+            try { twemoji.parse(picDiv, { folder: 'svg', ext: '.svg' }); } catch(e) {}
           }
       }
     }
 
     function getPointerPos(e, targetCanvas) {
       const rect = targetCanvas.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      // Safely extract clientX/Y to prevent undefined errors during touchout events
+      const touch = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : null);
+      const clientX = e.clientX ?? (touch ? touch.clientX : 0);
+      const clientY = e.clientY ?? (touch ? touch.clientY : 0);
       const scaleX = targetCanvas.width / rect.width;
       const scaleY = targetCanvas.height / rect.height;
       return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
@@ -1147,7 +1180,7 @@
         
         lNode.id = `leftNode_${i}`;
         leftCol.appendChild(lNode);
-        twemoji.parse(lNode, { folder: 'svg', ext: '.svg' }); 
+        try { twemoji.parse(lNode, { folder: 'svg', ext: '.svg' }); } catch(e) {}
 
         // Right Nodes (Words/Numbers)
         const rNode = document.createElement('div');
@@ -1225,8 +1258,9 @@
 
       function onEnd(e) {
         if (!isDraggingMatch || !dragStartNode) return;
-        const touchX = e.clientX || (e.changedTouches && e.changedTouches[0].clientX);
-        const touchY = e.clientY || (e.changedTouches && e.changedTouches[0].clientY);
+        const touch = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : null);
+        const touchX = e.clientX ?? (touch ? touch.clientX : 0);
+        const touchY = e.clientY ?? (touch ? touch.clientY : 0);
         
         let targetEl = document.elementFromPoint(touchX, touchY);
         if(targetEl) targetEl = targetEl.closest('#matchRightCol > div'); 
@@ -1387,7 +1421,6 @@
         grid.innerHTML = '';
         for(let i=0; i<10; i++) {
             let el = document.createElement('div');
-            // Changed opacity-20 to opacity-40 so unselected objects are easily visible!
             el.className = "text-4xl md:text-5xl cursor-pointer transition-all active:scale-90 opacity-40 grayscale drop-shadow-none select-none";
             el.textContent = cfEmoji;
             el.onclick = () => {
@@ -1405,8 +1438,7 @@
                 checkCountFillWin();
             };
             grid.appendChild(el);
-            // Uses the new cf-emoji class for perfect sizing
-            twemoji.parse(el, { folder: 'svg', ext: '.svg', className: 'cf-emoji' });
+            try { twemoji.parse(el, { folder: 'svg', ext: '.svg', className: 'cf-emoji' }); } catch(e) {}
         }
         
         let u = new SpeechSynthesisUtterance(`Trace the number ${cfTarget}, and fill exactly ${cfTarget} objects!`);
@@ -1423,7 +1455,9 @@
       const scanCtx = scanCanvas.getContext('2d', { willReadFrequently: true });
       scanCtx.fillStyle = "black";
       scanCtx.fillRect(0, 0, 140, 140);
-      scanCtx.fillStyle = "white"; 
+      
+      // FIX: Draw text in pure Red to perfectly track shape against black background
+      scanCtx.fillStyle = "red"; 
       scanCtx.textAlign = "center";
       scanCtx.textBaseline = "middle";
       let scaledFontSize = fontSize * (140 / cfCanvas.width);
@@ -1433,7 +1467,7 @@
       const imgData = scanCtx.getImageData(0, 0, 140, 140).data;
       cfTotalTargetPixels = 0;
       for (let i = 0; i < imgData.length; i += 4) {
-        // FIX: Check the red color channel (imgData[i]) for white text, NOT the alpha channel (imgData[i+3]) which is 255 everywhere because of the black background!
+        // Only count the actual target shape (red channel)
         if (imgData[i] > 128) cfTotalTargetPixels++;
       }
     }
@@ -1492,20 +1526,25 @@
       scanCtx.textAlign = "center";
       scanCtx.textBaseline = "middle";
       scanCtx.font = `bold ${scaledFontSize}px '${fontName}', sans-serif`;
+      
+      // 1. Target shape in Red
       scanCtx.globalCompositeOperation = "source-over";
-      scanCtx.fillStyle = "white";
+      scanCtx.fillStyle = "black";
+      scanCtx.fillRect(0, 0, 140, 140);
+      scanCtx.fillStyle = "red";
       scanCtx.fillText(text, 70, 70);
 
+      // 2. Ink in Blue
       scanCtx.globalCompositeOperation = "source-atop";
       scanCtx.lineCap = "round";
       scanCtx.lineJoin = "round";
-      scanCtx.lineWidth = 150 * (140 / cfCanvas.width); // Matches the massive marker
+      scanCtx.lineWidth = 150 * (140 / cfCanvas.width);
 
       const scale = 140 / cfCanvas.width;
-
+      scanCtx.strokeStyle = "blue";
+      
       for (let path of cfPaths) {
         if (path.points.length === 0) continue;
-        scanCtx.strokeStyle = path.color;
         scanCtx.beginPath();
         scanCtx.moveTo(path.points[0].x * scale, path.points[0].y * scale);
         for (let i = 1; i < path.points.length; i++) {
@@ -1517,7 +1556,8 @@
       const imgData = scanCtx.getImageData(0, 0, 140, 140).data;
       let filledPixels = 0;
       for (let i = 0; i < imgData.length; i += 4) {
-        if (imgData[i+3] > 128 && (imgData[i] < 250 || imgData[i+1] < 250 || imgData[i+2] < 250)) {
+        // Because of source-atop, the blue ink perfectly replaces the red text
+        if (imgData[i+2] > 128) {
           filledPixels++;
         }
       }
@@ -1529,7 +1569,6 @@
     
     function checkCountFillWin() {
         if (isCelebrating) return;
-        // Lowered threshold from 90% to 80% so kids win easily without needing perfect corners
         if (cfProgress >= 80 && cfFilled === cfTarget) {
             isCelebrating = true;
             
@@ -1549,8 +1588,9 @@
 
     function cfGetPointerPos(e) {
       const rect = cfCanvas.getBoundingClientRect();
-      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+      const touch = e.touches ? e.touches[0] : (e.changedTouches ? e.changedTouches[0] : null);
+      const clientX = e.clientX ?? (touch ? touch.clientX : 0);
+      const clientY = e.clientY ?? (touch ? touch.clientY : 0);
       const scaleX = cfCanvas.width / rect.width;
       const scaleY = cfCanvas.height / rect.height;
       return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
