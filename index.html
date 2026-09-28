@@ -956,8 +956,9 @@
       scanCtx.lineCap = "round";
       scanCtx.lineJoin = "round";
       
-      let markerSize = Math.max(40, fontSize * 0.4);
-      scanCtx.lineWidth = markerSize * (100 / canvas.width);
+      // FIX: Match scanner marker perfectly to visual marker to prevent premature 100%
+      let markerSize = Math.max(15, fontSize * 0.1);
+      scanCtx.lineWidth = markerSize * (200 / canvas.width);
 
       const scaleX = 200 / canvas.width;
       const scaleY = 140 / canvas.height;
@@ -1016,8 +1017,8 @@
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       
-      // Dynamic Marker: Thinner for finer control
-      let markerSize = Math.max(20, fontSize * 0.15);
+      // FIX: Reduced visual marker size for much finer tracing control
+      let markerSize = Math.max(15, fontSize * 0.1);
       ctx.lineWidth = markerSize; 
 
       for (let path of paths) {
